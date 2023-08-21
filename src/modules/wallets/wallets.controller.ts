@@ -8,8 +8,8 @@ import {
   Param,
   Patch,
   Post,
-  UseGuards,
-} from '@nestjs/common';
+  UseGuards, UsePipes, ValidationPipe
+} from "@nestjs/common";
 import {
   ApiCookieAuth, ApiCreatedResponse,
   ApiHeader,
@@ -133,6 +133,7 @@ export class WalletsController {
   }
 
   @Post()
+  @UsePipes(new ValidationPipe())
   @ApiCookieAuth(COOKIE_NAMES.ACCESS_TOKEN)
   @HttpCode(HttpStatus.CREATED)
   @UseGuards(SessionGuard)
@@ -190,6 +191,7 @@ export class WalletsController {
   }
 
   @Patch(':walletId')
+  @UsePipes(new ValidationPipe())
   @ApiCookieAuth(COOKIE_NAMES.ACCESS_TOKEN)
   @HttpCode(HttpStatus.OK)
   @UseGuards(SessionGuard)

@@ -2,7 +2,7 @@ version: '3'
 services:
   mongo:
     image: mongo
-    container_name: top-page-mongo
+    container_name: finance-planner-mongodb
     restart: always
     environment:
       - MONGO_INITDB_ROOT_USERNAME=admin

@@ -1,21 +1,13 @@
-import { CACHE_MANAGER } from '@nestjs/cache-manager';
-import {
-  CanActivate,
-  ExecutionContext,
-  Inject,
-  Injectable,
-} from '@nestjs/common';
+import { InjectRedis } from '@liaoliaots/nestjs-redis';
+import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectModel } from '@nestjs/mongoose';
-import { Cache } from 'cache-manager';
 import { Request, Response } from 'express';
+import Redis from 'ioredis';
 import { Types } from 'mongoose';
 import { ExceptionFactory } from '../../utils/exception/exception.factory';
-import {
-  TUserDocument,
-  TUserModel,
-  User,
-} from '../profile/db_models/user.model';
+import { REDIS_NAMESPACES } from '../../utils/global.constants';
+import { TUserDocument, TUserModel, User } from '../profile/db_models/user.model';
 import { ProfileService } from '../profile/profile.service';
 import { COOKIE_NAMES } from './session.constants';
 import { SessionService } from './session.service';
@@ -29,7 +21,7 @@ export interface AuthRequest extends Request {
 export class SessionGuard implements CanActivate {
   constructor(
     @InjectModel(User.name) private readonly userModel: TUserModel,
-    @Inject(CACHE_MANAGER) private readonly cacheService: Cache,
+    @InjectRedis(REDIS_NAMESPACES.SESSION) private readonly redisService: Redis,
     private readonly jwtService: JwtService,
     private readonly profileService: ProfileService,
     private readonly sessionService: SessionService,
@@ -48,19 +40,11 @@ export class SessionGuard implements CanActivate {
     return true;
   }
 
-  private async findAndSetUserToReqContext(
-    jwtPayload: IAuthJwtPayload,
-    request: Request,
-  ) {
-    const user = await this.profileService.findUserById(
-      new Types.ObjectId(jwtPayload.userId),
-    );
+  private async findAndSetUserToReqContext(jwtPayload: IAuthJwtPayload, request: Request) {
+    const user = await this.profileService.findUserById(new Types.ObjectId(jwtPayload.userId));
 
     if (!user) {
-      throw ExceptionFactory.create(
-        { moduleName: 'profile', code: 'USER_NOT_FOUND' },
-        null,
-      );
+      throw ExceptionFactory.create({ moduleName: 'profile', code: 'USER_NOT_FOUND' }, null);
     }
 
     request['user'] = user;
@@ -70,36 +54,22 @@ export class SessionGuard implements CanActivate {
     return req.cookies[COOKIE_NAMES.ACCESS_TOKEN] || null;
   }
 
-  private async checkValidTokenAndGetAuthData(
-    token: string | null,
-    response: Response,
-  ): Promise<IAuthJwtPayload> {
+  private async checkValidTokenAndGetAuthData(token: string | null, response: Response): Promise<IAuthJwtPayload> {
     if (!token) {
-      throw ExceptionFactory.create(
-        { moduleName: 'session', code: 'USER_NOT_AUTHORIZED' },
-        null,
-      );
+      throw ExceptionFactory.create({ moduleName: 'session', code: 'USER_NOT_AUTHORIZED' }, null);
     }
 
-    const sessionToken: string = await this.cacheService.get(token);
+    const sessionToken: string = await this.redisService.get(token);
 
     if (!sessionToken) {
       this.sessionService.removeTokenFromCookie(response);
-      throw ExceptionFactory.create(
-        { moduleName: 'session', code: 'NOT_FOUND_SESSION' },
-        null,
-      );
+      throw ExceptionFactory.create({ moduleName: 'session', code: 'NOT_FOUND_SESSION' }, null);
     }
 
-    const userInfo: IAuthJwtPayload = this.jwtService.decode(
-      sessionToken,
-    ) as IAuthJwtPayload;
+    const userInfo: IAuthJwtPayload = this.jwtService.decode(sessionToken) as IAuthJwtPayload;
 
     if (!userInfo?.userId) {
-      throw ExceptionFactory.create(
-        { moduleName: 'session', code: 'USER_CANT_CHECK_SESSION' },
-        null,
-      );
+      throw ExceptionFactory.create({ moduleName: 'session', code: 'USER_CANT_CHECK_SESSION' }, null);
     }
 
     return userInfo;

@@ -1,3 +1,4 @@
+import { RedisModule } from '@liaoliaots/nestjs-redis';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
@@ -10,6 +11,7 @@ import { TagsModule } from './modules/tags/tags.module';
 import { TargetsModule } from './modules/targets/targets.module';
 import { TemplatesModule } from './modules/templates/templates.module';
 import { WalletsModule } from './modules/wallets/wallets.module';
+import { REDIS_NAMESPACES } from './utils/global.constants';
 
 @Module({
   imports: [
@@ -26,6 +28,26 @@ import { WalletsModule } from './modules/wallets/wallets.module';
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: getMongoConfig,
+    }),
+    RedisModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: async (configService: ConfigService) => ({
+        config: [
+          {
+            port: configService.get('REDIS_SESSION_PORT'),
+            host: configService.get('REDIS_SESSION_HOST'),
+            db: 0,
+            namespace: REDIS_NAMESPACES.SESSION,
+          },
+          {
+            port: configService.get('REDIS_SESSION_PORT'),
+            host: configService.get('REDIS_SESSION_HOST'),
+            db: 1,
+            namespace: REDIS_NAMESPACES.WALLET_STATE,
+          },
+        ],
+      }),
+      inject: [ConfigService],
     }),
   ],
 })

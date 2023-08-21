@@ -1,23 +1,10 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty } from '@nestjs/swagger';
-import mongoose, {
-  HydratedDocument,
-  Model,
-  SchemaTypes,
-  Types,
-} from 'mongoose';
+import mongoose, { HydratedDocument, Model, SchemaTypes, Types } from 'mongoose';
 import { User } from '../profile/db_models/user.model';
-import {
-  WALLET_CREATOR,
-  WALLET_NAME_MAX_LENGTH,
-  WALLET_NAME_MIN_LENGTH,
-  WALLET_TYPE,
-} from './wallets.constants';
+import { WALLET_CREATOR, WALLET_NAME_MAX_LENGTH, WALLET_NAME_MIN_LENGTH, WALLET_TYPE } from './wallets.constants';
 
-export type TWalletDocument = HydratedDocument<
-  Wallet,
-  { createdAt: Date; updatedAt: Date }
->;
+export type TWalletDocument = HydratedDocument<Wallet, { createdAt: Date; updatedAt: Date }>;
 export type TWalletModel = Model<TWalletDocument>;
 
 @Schema({
@@ -100,6 +87,54 @@ export class Wallet {
   })
   @Prop({ type: Number, required: true, default: 0 })
   planningConsumption: number;
+
+  @ApiProperty({
+    type: Number,
+    name: 'allIncomeSum',
+    required: true,
+    default: 0,
+    minimum: 0,
+    description: 'Сумма доходов за все время',
+  })
+  @Prop({
+    type: Number,
+    min: 0,
+    default: 0,
+    required: true,
+  })
+  allIncomeSum: number;
+
+  @ApiProperty({
+    type: Number,
+    name: 'allConsumptionSum',
+    required: true,
+    default: 0,
+    minimum: 0,
+    description: 'Сумма расходов за все время',
+  })
+  @Prop({
+    type: Number,
+    min: 0,
+    default: 0,
+    required: true,
+  })
+  allConsumptionSum: number;
+
+  @ApiProperty({
+    type: String,
+    name: 'lastOperationDate',
+    nullable: true,
+    required: true,
+    default: null,
+    example: new Date().toISOString(),
+    description: 'Дата создания последней операции',
+  })
+  @Prop({
+    type: Date,
+    nullable: true,
+    default: null,
+  })
+  lastOperationDate: Date | null;
 
   @ApiProperty({
     type: String,

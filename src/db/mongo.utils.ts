@@ -1,12 +1,11 @@
 import { MongooseModuleFactoryOptions } from '@nestjs/mongoose/dist/interfaces/mongoose-options.interface';
 import * as process from 'process';
 
-export const getMongoConfig =
-  async (): Promise<MongooseModuleFactoryOptions> => {
-    return {
-      uri: getMongoUri(),
-    };
+export const getMongoConfig = async (): Promise<MongooseModuleFactoryOptions> => {
+  return {
+    uri: getMongoUri(),
   };
+};
 
 export const getMongoUri = () => {
   const host = process.env.MONGO_HOST;

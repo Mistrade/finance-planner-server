@@ -1,3 +1,5 @@
+import { IExceptionFactoryModuleNames, IExceptionFactoryModulesMap } from "./exception/types";
+
 export enum EXCEPTION_TYPES {
   ERROR = 'error',
   WARNING = 'warning',
@@ -34,9 +36,11 @@ export interface TResponseInfoData {
   message: string;
 }
 
-export interface IResponseAdapterInfo extends TResponseInfoData {
+export interface IResponseAdapterInfo<T extends IExceptionFactoryModuleNames> extends TResponseInfoData {
   datetime: string;
   description?: string;
+  service?: T;
+  serviceErrorCode?: IExceptionFactoryModulesMap[T]['code'];
 }
 
 export interface IGenerateHttpExceptionReturned<T> {

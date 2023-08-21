@@ -1,84 +1,68 @@
 import { HttpException, HttpStatus } from '@nestjs/common';
-import { exhaustiveCheck, IResponseAdapterInfo } from '../../utils/exception.data';
+import { exhaustiveCheck } from '../../utils/exception.data';
 import { RejectException } from '../../utils/exception/reject.exception';
-import { IExceptionFactoryModulesMap } from '../../utils/exception/types';
-import { TAG_MESSAGES } from './tags.constants';
+import { IExceptionFactoryModulesMap, TExceptionMeta } from "../../utils/exception/types";
+import { OPERATION_API_MESSAGES } from './operations.constants';
 
-export type TTagsExceptionCodes =
-  | 'CANT_CREATE'
-  | 'NOT_FOUND'
-  | 'UPDATE_IMPOSSIBLE_TITLE_IS_ALREADY_EXISTS'
-  | 'NOTHING_TO_REMOVE'
-  | 'NOT_REMOVED'
-  | 'CANT_REMOVED';
+export type TOperationExceptionCodes = 'NOTHING_TO_REMOVE' | 'NOT_FOUND' | "PREV_VALUE_EQUAL_NEXT" | "DEFAULT" | "INVALID_DATE" | "INVALID_DTO";
 
-export abstract class TagsException<Data> {
-  static create<Data>(
-    module: IExceptionFactoryModulesMap['tags'],
-    data?: Data,
-    meta?: Pick<IResponseAdapterInfo<any>, 'description'>,
-  ): HttpException {
+export abstract class OperationException {
+  static create<Data>(module: IExceptionFactoryModulesMap['operations'], data?: Data | null, meta?: TExceptionMeta): HttpException {
     switch (module.code) {
-      case 'CANT_CREATE': {
+      case 'NOTHING_TO_REMOVE':
         return new RejectException({
           data: data || null,
-          statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
-          message: TAG_MESSAGES.CANT_CREATED,
+          statusCode: HttpStatus.BAD_REQUEST,
+          message: OPERATION_API_MESSAGES[module.code],
           service: module.moduleName,
           serviceErrorCode: module.code,
           ...meta,
         });
-      }
-      case 'NOT_FOUND': {
+      case 'NOT_FOUND':
         return new RejectException({
           data: data || null,
           statusCode: HttpStatus.NOT_FOUND,
-          message: TAG_MESSAGES.TAG_NOT_FOUND,
+          message: OPERATION_API_MESSAGES[module.code],
           service: module.moduleName,
           serviceErrorCode: module.code,
           ...meta,
         });
-      }
-      case 'UPDATE_IMPOSSIBLE_TITLE_IS_ALREADY_EXISTS': {
+      case 'PREV_VALUE_EQUAL_NEXT':
         return new RejectException({
           data: data || null,
           statusCode: HttpStatus.BAD_REQUEST,
-          message: TAG_MESSAGES.UPDATE_TAG_TITLE_ALREADY_EXISTS,
-          service: module.moduleName,
-          serviceErrorCode: module.code,
-          ...meta
-        });
-      }
-      case 'CANT_REMOVED': {
-        return new RejectException({
-          data: data || null,
-          statusCode: HttpStatus.BAD_REQUEST,
-          message: TAG_MESSAGES.CANT_REMOVED,
+          message: OPERATION_API_MESSAGES.PREV_EQUAL_WITH_NEXT,
           service: module.moduleName,
           serviceErrorCode: module.code,
           ...meta,
         });
-      }
-      case 'NOT_REMOVED': {
+      case 'DEFAULT':
         return new RejectException({
           data: data || null,
-          statusCode: HttpStatus.BAD_REQUEST,
-          message: TAG_MESSAGES.NOT_REMOVED,
+          statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+          message: OPERATION_API_MESSAGES.DEFAULT,
           service: module.moduleName,
           serviceErrorCode: module.code,
           ...meta,
         });
-      }
-      case 'NOTHING_TO_REMOVE': {
+      case 'INVALID_DATE':
         return new RejectException({
           data: data || null,
           statusCode: HttpStatus.BAD_REQUEST,
-          message: TAG_MESSAGES.NOTHING_TO_REMOVE,
+          message: OPERATION_API_MESSAGES.INVALID_DATE,
           service: module.moduleName,
           serviceErrorCode: module.code,
           ...meta,
         });
-      }
+      case 'INVALID_DTO':
+        return new RejectException({
+          data: data || null,
+          statusCode: HttpStatus.BAD_REQUEST,
+          message: OPERATION_API_MESSAGES.INVALID_DTO,
+          service: module.moduleName,
+          serviceErrorCode: module.code,
+          ...meta,
+        })
     }
 
     exhaustiveCheck(module.code);

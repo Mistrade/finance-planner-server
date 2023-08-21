@@ -22,7 +22,7 @@ interface LogOptions {
   method: string;
   path: string;
   userId: string | undefined;
-  info: IResponseAdapterInfo;
+  info: IResponseAdapterInfo<any>;
   exception: unknown;
 }
 
@@ -54,6 +54,7 @@ export class AllExceptionFilter implements ExceptionFilter {
         userId: req.user?._id?.toString() || '',
         exception,
       }),
+      exception
     );
 
     return httpAdapter.reply(res, result.adapterBody, result.statusCode);
@@ -66,7 +67,6 @@ export class AllExceptionFilter implements ExceptionFilter {
       `path[${path}]`,
       `userId[${userId || 'undefined'}]`,
       `description: \"${JSON.stringify(info)}\"`,
-      `exceptionInfo: \"${JSON.stringify(exception)}\"`,
     ];
 
     return data.join(', \n');
