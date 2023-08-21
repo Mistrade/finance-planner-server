@@ -27,7 +27,7 @@
 
 [Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
 
-## Installation
+## Installation dependencies
 
 ```bash
 $ npm install
@@ -46,17 +46,12 @@ $ npm run start:dev
 $ npm run start:prod
 ```
 
-## Test
+## Swagger (Docs)
+
+[Swagger Link (Api Documentation)](http://localhost:3000/api/swagger)
 
 ```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+$ npm run start:dev 
 ```
 
 ## Support
