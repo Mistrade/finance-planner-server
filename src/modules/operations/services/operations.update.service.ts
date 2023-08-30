@@ -9,7 +9,7 @@ import { CategoryService } from '../../category/category.service';
 import { User } from '../../profile/db_models/user.model';
 import { ResolveService } from '../../resolve/resolve.service';
 import { TagsService } from '../../tags/tags.service';
-import { WalletCalculateService } from '../../wallets/wallet.calculate.service';
+import { WalletCalculateService } from '../../wallets/services/wallet.calculate.service';
 import { UpdateOperationDto } from '../dto/operation.fields.dto';
 import { OPERATION_API_MESSAGES, OPERATION_STATE, OPERATION_TYPES } from '../operations.constants';
 import { Operation, TOperationDocument, TOperationModel } from '../operations.model';
@@ -176,11 +176,11 @@ export class OperationsUpdateService {
     const prev = doc.type;
     doc.type = value;
 
-    await doc.save({ validateModifiedOnly: true });
-    await this.walletCalculateService.calculateUpdatedTypeOperation(doc, prev, userId);
-
-    console.log('Все ок: ', JSON.stringify(doc));
-
+    await Promise.all([
+      doc.save({ validateModifiedOnly: true }),
+      this.walletCalculateService.calculateUpdatedTypeOperation(doc, prev, userId),
+    ]);
+    
     return doc;
   }
 
@@ -200,8 +200,10 @@ export class OperationsUpdateService {
     const prevState = Math.abs(doc.cost);
     doc.cost = Math.abs(value);
 
-    await doc.save({ validateModifiedOnly: true });
-    await this.walletCalculateService.calculateUpdatedCostOperation(doc, prevState, userId);
+    await Promise.all([
+      doc.save({ validateModifiedOnly: true }),
+      this.walletCalculateService.calculateUpdatedCostOperation(doc, prevState, userId),
+    ]);
 
     return doc;
   }
@@ -237,8 +239,10 @@ export class OperationsUpdateService {
     const prevState = doc.state;
     doc.state = value;
 
-    await doc.save({ validateModifiedOnly: true });
-    await this.walletCalculateService.calculateUpdatedStateOperation(doc, prevState, userId);
+    await Promise.all([
+      doc.save({ validateModifiedOnly: true }),
+      this.walletCalculateService.calculateUpdatedStateOperation(doc, prevState, userId),
+    ]);
 
     return doc;
   }

@@ -7,13 +7,15 @@ import { TagsModule } from '../tags/tags.module';
 import { TargetsModule } from '../targets/targets.module';
 import { TemplatesModule } from '../templates/templates.module';
 import { WalletsModule } from '../wallets/wallets.module';
-import { OperationRemoveController } from './controllers/operation.remove.controller';
-import { OperationsController } from './operations.controller';
+import { OperationDeleteController } from './controllers/operation.delete.controller';
+import { OperationGetController } from './controllers/operation.get.controller';
+import { OperationPatchController } from './controllers/operation.patch.controller';
+import { OperationPostController } from './controllers/operation.post.controller';
 import { Operation, OperationSchema } from './operations.model';
 import { OperationRemoveService } from './services/operation.remove.service';
 import { OperationsBuilderService } from './services/operations.builder.service';
+import { OperationsCreateService } from './services/operations.create.service';
 import { OperationsFindService } from './services/operations.find.service';
-import { OperationsService } from './services/operations.service';
 import { OperationsUpdateService } from './services/operations.update.service';
 
 @Module({
@@ -27,9 +29,9 @@ import { OperationsUpdateService } from './services/operations.update.service';
     SubscribeModule,
     ResolveModule,
   ],
-  controllers: [OperationsController, OperationRemoveController],
+  controllers: [OperationDeleteController, OperationGetController, OperationPostController, OperationPatchController],
   providers: [
-    OperationsService,
+    OperationsCreateService,
     OperationsBuilderService,
     OperationsFindService,
     OperationsUpdateService,
@@ -37,4 +39,5 @@ import { OperationsUpdateService } from './services/operations.update.service';
   ],
   exports: [OperationsFindService],
 })
-export class OperationsModule {}
+export class OperationsModule {
+}

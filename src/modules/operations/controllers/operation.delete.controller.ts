@@ -4,24 +4,26 @@ import mongoose from 'mongoose';
 import { ResponseAdapter } from '../../../utils/adapters/response.adapter';
 import { EXCEPTION_TYPES } from '../../../utils/exception.data';
 import { RejectException } from '../../../utils/exception/reject.exception';
+import { CONTROLLER_PATHS } from "../../../utils/global.constants";
 import { SWAGGER_TAGS } from '../../../utils/swagger/swagger.constants';
 import { DEFAULT_SWAGGER_RESPONSE } from '../../../utils/swagger/swagger.utils';
 import { User } from '../../profile/db_models/user.model';
 import { COOKIE_NAMES } from '../../session/session.constants';
 import { UserInfo } from '../../session/session.decorators';
 import { SessionGuard } from '../../session/session.guard';
-import { WalletCalculateService } from '../../wallets/wallet.calculate.service';
+import { WalletCalculateService } from '../../wallets/services/wallet.calculate.service';
 import { ApiOperationResponseDto } from '../dto/api.operation.response-dto';
 import { OPERATION_API_MESSAGES } from '../operations.constants';
 import { OperationRemoveService } from '../services/operation.remove.service';
 
 @ApiTags(SWAGGER_TAGS.OPERATIONS)
-@Controller('operations')
+@Controller(CONTROLLER_PATHS.OPERATIONS)
 @UseGuards(SessionGuard)
-export class OperationRemoveController {
+@ApiCookieAuth(COOKIE_NAMES.ACCESS_TOKEN)
+export class OperationDeleteController {
   constructor(
     private readonly removeService: OperationRemoveService,
-    private readonly walletCalculateService: WalletCalculateService,
+    // private readonly walletCalculateService: WalletCalculateService,
   ) {}
 
   @Delete('byWalletId/:walletId')

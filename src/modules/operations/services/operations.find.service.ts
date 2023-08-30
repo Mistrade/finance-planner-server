@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import dayjs, { Dayjs } from 'dayjs';
-import mongoose, { AnyObject, Types } from 'mongoose';
+import mongoose, { AnyObject, QueryOptions, Types } from 'mongoose';
 import { User } from '../../profile/db_models/user.model';
 import { FindOperationsQueryDto } from '../dto/find.operations.query.dto';
 import { OPERATION_STATE, OPERATION_TYPES } from '../operations.constants';
@@ -18,9 +18,6 @@ export class OperationsFindService {
   ): Promise<Array<IAggregateOperationsBalance>> {
     const match = {
       user,
-      cost: {
-        $ne: 0,
-      },
     };
     const grouped = {
       _id: {
@@ -45,26 +42,30 @@ export class OperationsFindService {
       };
     }
 
-    return this.operationModel
-      .aggregate()
-      .append({ $match: match })
-      .append({ $group: grouped })
-      .hint({ user: 1, wallet: 1 });
+    return this.operationModel.aggregate().append({ $match: match }).append({ $group: grouped });
   }
 
-  async findById(id: Types.ObjectId, userId: Types.ObjectId): Promise<TOperationDocument | null> {
-    return this.operationModel.findOne({
-      _id: id,
-      user: userId,
-    });
+  async findById(
+    id: Types.ObjectId,
+    userId: Types.ObjectId,
+    options?: QueryOptions<TOperationDocument>,
+  ): Promise<TOperationDocument | null> {
+    return this.operationModel.findOne(
+      {
+        _id: id,
+        user: userId,
+      },
+      undefined,
+      options,
+    );
   }
 
-  async findByFilters(filtersDto: FindOperationsQueryDto, userInfo: User): Promise<Array<Operation>> {
-    const filters = this.buildFilters(filtersDto, userInfo);
-
-    console.log('фильтры для поиска: ', filters);
-
-    return this.operationModel.find(filters);
+  async findByFilters(
+    filtersDto: FindOperationsQueryDto,
+    userInfo: User,
+    options?: QueryOptions<TOperationDocument>,
+  ): Promise<Array<Operation>> {
+    return this.operationModel.find(this.buildFilters(filtersDto, userInfo), undefined, options);
   }
 
   private buildFilters(filters: FindOperationsQueryDto, userInfo?: User): Partial<Record<keyof Operation, any>> {

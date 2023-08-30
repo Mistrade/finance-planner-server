@@ -16,6 +16,7 @@ import { ApiCookieAuth, ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiResp
 import mongoose from 'mongoose';
 import { ResponseAdapter } from '../../utils/adapters/response.adapter';
 import { ExceptionFactory } from '../../utils/exception/exception.factory';
+import { RejectException } from '../../utils/exception/reject.exception';
 import { SWAGGER_TAGS } from '../../utils/swagger/swagger.constants';
 import { DEFAULT_SWAGGER_RESPONSE } from '../../utils/swagger/swagger.utils';
 import { TUserDocument } from '../profile/db_models/user.model';
@@ -24,13 +25,15 @@ import { UserInfo } from '../session/session.decorators';
 import { SessionGuard } from '../session/session.guard';
 import { ApiArrayWalletsResponseDto, ApiWalletsResponseDto } from './dto/api.wallet.response-dto';
 import { CreateWalletDto } from './dto/create.wallet.dto';
-import { WalletCalculateService } from './wallet.calculate.service';
+import { WalletCalculateService } from './services/wallet.calculate.service';
+import { WalletsService } from './services/wallets.service';
 import { TWalletsExceptionCodes } from './wallets.exception';
 import { TWalletDocument } from './wallets.model';
-import { WalletsService } from './wallets.service';
 
 @ApiTags(SWAGGER_TAGS.WALLETS)
 @Controller('wallets')
+@UseGuards(SessionGuard)
+@ApiCookieAuth(COOKIE_NAMES.ACCESS_TOKEN)
 export class WalletsController {
   constructor(
     private readonly walletsService: WalletsService,
@@ -38,8 +41,6 @@ export class WalletsController {
   ) {}
 
   @Get(':walletId')
-  @ApiCookieAuth(COOKIE_NAMES.ACCESS_TOKEN)
-  @UseGuards(SessionGuard)
   @ApiOperation({ summary: 'Получить кошелек по ID' })
   @ApiOkResponse({
     type: ApiWalletsResponseDto,
@@ -54,16 +55,14 @@ export class WalletsController {
     const walletObjectId = new mongoose.Types.ObjectId(walletId);
     const result = await this.walletsService.findOneById(userInfo._id, walletObjectId);
 
-    if (!result) {
-      throw ExceptionFactory.create({ moduleName: 'wallets', code: 'NOT_FOUND' }, null);
+    if (result instanceof RejectException) {
+      throw result;
     }
 
     return new ResponseAdapter(result);
   }
 
   @Get()
-  @ApiCookieAuth(COOKIE_NAMES.ACCESS_TOKEN)
-  @UseGuards(SessionGuard)
   @ApiOperation({ summary: 'Получить все кошельки' })
   @ApiOkResponse({
     type: ApiArrayWalletsResponseDto,
@@ -83,9 +82,7 @@ export class WalletsController {
 
   @Post()
   @UsePipes(new ValidationPipe())
-  @ApiCookieAuth(COOKIE_NAMES.ACCESS_TOKEN)
   @HttpCode(HttpStatus.CREATED)
-  @UseGuards(SessionGuard)
   @ApiOperation({ summary: 'Создать кошелек' })
   @ApiCreatedResponse({
     type: ApiWalletsResponseDto,
@@ -107,9 +104,7 @@ export class WalletsController {
   }
 
   @Post('createBaseWallets')
-  @ApiCookieAuth(COOKIE_NAMES.ACCESS_TOKEN)
   @HttpCode(HttpStatus.CREATED)
-  @UseGuards(SessionGuard)
   @ApiOperation({
     summary:
       'Создает в базе данных стартовый набор кошельков, если какой-то из них отсутствует и возвращает массив базовых кошельков в полном объеме',
@@ -130,11 +125,10 @@ export class WalletsController {
     return new ResponseAdapter<Array<TWalletDocument>>(result);
   }
 
+  @ApiTags(SWAGGER_TAGS.TODO)
   @Patch(':walletId')
   @UsePipes(new ValidationPipe())
-  @ApiCookieAuth(COOKIE_NAMES.ACCESS_TOKEN)
   @HttpCode(HttpStatus.OK)
-  @UseGuards(SessionGuard)
   @ApiOperation({ summary: 'Обновить кошелек' })
   @ApiOkResponse({
     type: ApiWalletsResponseDto,
@@ -143,14 +137,13 @@ export class WalletsController {
   })
   @ApiResponse(DEFAULT_SWAGGER_RESPONSE)
   updateWallet(@Body() dto: any, @Param('walletId') walletId: string, @UserInfo() userInfo: TUserDocument) {
+    // TODO
     const walletObjectId = new mongoose.Types.ObjectId(walletId);
   }
 
   @Delete(':walletId')
-  @UseGuards(SessionGuard)
   @ApiOperation({ summary: 'Удалить кошелек' })
   @HttpCode(HttpStatus.OK)
-  @ApiCookieAuth(COOKIE_NAMES.ACCESS_TOKEN)
   @ApiOkResponse({
     type: ApiWalletsResponseDto,
     description: 'Модель удаленного кошелька',

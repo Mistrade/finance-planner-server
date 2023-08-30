@@ -1,13 +1,13 @@
 import { InjectModel } from '@nestjs/mongoose';
 import dayjs from 'dayjs';
 import { Types } from 'mongoose';
-import { exhaustiveCheck } from '../../utils/exception.data';
-import { OPERATION_STATE, OPERATION_TYPES } from '../operations/operations.constants';
-import { Operation, TOperationDocument } from '../operations/operations.model';
-import { IAggregateOperationsBalance } from '../operations/operations.types';
-import { OperationsFindService } from '../operations/services/operations.find.service';
-import { TUserDocument } from '../profile/db_models/user.model';
-import { TWalletDocument, TWalletModel, Wallet } from './wallets.model';
+import { exhaustiveCheck } from '../../../utils/exception.data';
+import { OPERATION_STATE, OPERATION_TYPES } from '../../operations/operations.constants';
+import { Operation, TOperationDocument } from '../../operations/operations.model';
+import { IAggregateOperationsBalance } from '../../operations/operations.types';
+import { OperationsFindService } from '../../operations/services/operations.find.service';
+import { TUserDocument } from '../../profile/db_models/user.model';
+import { TWalletDocument, TWalletModel, Wallet } from '../wallets.model';
 
 type TWalletAggregateHash = Record<string, Array<IAggregateOperationsBalance>>;
 
@@ -29,7 +29,7 @@ export class WalletCalculateService {
   private checkNeedReCalculateWallet(wallet: TWalletDocument): boolean {
     if (!wallet.lastCalculateDate) return true;
 
-    return dayjs().diff(wallet.lastCalculateDate, 'minute', false) >= 15;
+    return dayjs().diff(wallet.lastCalculateDate, 'hour', false) >= 1;
   }
 
   private buildWalletAggregateHash(data: Array<IAggregateOperationsBalance>): TWalletAggregateHash {
@@ -47,16 +47,9 @@ export class WalletCalculateService {
     userId: Types.ObjectId,
     walletsId?: Array<Types.ObjectId>,
   ): Promise<TWalletAggregateHash> {
-    performance.mark('balance');
     const data = await this.operationsFindService.aggregateWalletBalance(
       userId,
       walletsId.map((item) => item._id) || undefined,
-    );
-    performance.mark('balance-end');
-    console.log(
-      'Результат агрегации: ',
-      data,
-      performance.measure('Скорость выполнения агрегации', 'balance', 'balance-end'),
     );
 
     return this.buildWalletAggregateHash(data);
@@ -131,22 +124,33 @@ export class WalletCalculateService {
     return needReCalculateWallet;
   }
 
+  async asyncReCalculateWallets(
+    wallets: Array<TWalletDocument>,
+    user: Types.ObjectId,
+  ): Promise<Array<TWalletDocument>> {
+    const walletsForReCalculate = wallets.filter((item) => this.checkWalletForReCalculate(item));
+
+    if (!walletsForReCalculate.length) {
+      return wallets;
+    }
+
+    const updatedId = walletsForReCalculate.map((item) => item._id);
+    const aggregateHash: TWalletAggregateHash = await this.getAggregateWalletHash(user, updatedId);
+    this.reCalculateFromHashMutation(aggregateHash, walletsForReCalculate);
+
+    await Promise.all(wallets.map((wallet) => wallet.save()));
+
+    return wallets;
+  }
+
   async calculateWallets(user: Types.ObjectId) {
     const userWallets: Array<TWalletDocument> = await this.walletModel.find({
       user,
     });
 
-    const walletsForReCalculate = userWallets.filter((item) => this.checkWalletForReCalculate(item));
-
-    if (walletsForReCalculate.length) {
-      const updatedId = walletsForReCalculate.map((item) => item._id);
-      const aggregateHash: TWalletAggregateHash = await this.getAggregateWalletHash(user, updatedId);
-      this.reCalculateFromHashMutation(aggregateHash, walletsForReCalculate);
-
-      for await (let wallet of userWallets) {
-        await wallet.save();
-      }
-    }
+    this.asyncReCalculateWallets(userWallets, user)
+      .then((res) => console.log(res))
+      .catch((reason) => console.log(reason));
 
     return userWallets;
   }

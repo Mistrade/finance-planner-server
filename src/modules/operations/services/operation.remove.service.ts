@@ -1,8 +1,8 @@
 import { InjectModel } from '@nestjs/mongoose';
-import mongoose, { mongo, Types } from 'mongoose';
+import { mongo, Types } from 'mongoose';
 import { ExceptionFactory } from '../../../utils/exception/exception.factory';
 import { RejectException } from '../../../utils/exception/reject.exception';
-import { WalletCalculateService } from '../../wallets/wallet.calculate.service';
+import { WalletCalculateService } from '../../wallets/services/wallet.calculate.service';
 import { Operation, TOperationDocument, TOperationModel } from '../operations.model';
 
 export class OperationRemoveService {
@@ -25,9 +25,15 @@ export class OperationRemoveService {
   }
 
   async removeAllByUserId(userId: Types.ObjectId): Promise<mongo.DeleteResult | RejectException> {
-    const result: mongoose.mongo.DeleteResult = await this.operationModel.deleteMany({
+    const result: mongo.DeleteResult = await this.operationModel.deleteMany({
       user: userId,
     });
+
+    this.walletCalculateService
+      .calculateWallets(userId)
+      .catch((reason) =>
+        console.log('Не удалось пересчитать кошельки после удаления всех операций пользователя: ', reason),
+      );
 
     return result.deletedCount
       ? result

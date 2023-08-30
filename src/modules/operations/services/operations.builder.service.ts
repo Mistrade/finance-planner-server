@@ -9,6 +9,7 @@ export class OperationsBuilderService {
 
   async buildSchema(list: Array<Operation>): Promise<ISchemaOperationsMain> {
     const result: ISchemaOperationsMain = {};
+    
     for (let item of list) {
       const usageDate = dayjs(item.date);
       const year = usageDate.year();

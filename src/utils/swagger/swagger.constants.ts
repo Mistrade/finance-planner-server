@@ -8,5 +8,6 @@ export enum SWAGGER_TAGS {
   WALLETS = 'Wallets +',
   SUBSCRIBE = 'Subscribe',
   CALCULATE = 'Calculate',
-  PROFILE = 'Profile'
+  PROFILE = 'Profile',
+  TODO = 'TODO'
 }

@@ -6,3 +6,7 @@ export enum REDIS_NAMESPACES {
   SESSION = 'default',
   WALLET_STATE = 'wallet_state',
 }
+
+export enum CONTROLLER_PATHS {
+  OPERATIONS = 'operations'
+}

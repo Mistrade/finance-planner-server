@@ -11,7 +11,7 @@ import { DEFAULT_SWAGGER_RESPONSE } from '../../utils/swagger/swagger.utils';
 import { TUserDocument, User } from '../profile/db_models/user.model';
 import { ApiUserResponseDto } from '../profile/dto/api.user.response-dto';
 import { TProfileExceptionCodes } from '../profile/profile.exception';
-import { WalletsService } from '../wallets/wallets.service';
+import { WalletsService } from '../wallets/services/wallets.service';
 import { SessionDto } from './dto/session.dto';
 import { COOKIE_NAMES, SESSION_MESSAGES } from './session.constants';
 import { GetCookies } from './session.decorators';
