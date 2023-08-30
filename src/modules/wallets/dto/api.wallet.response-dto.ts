@@ -1,8 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import {
-  ResponseAdapter,
-  ResponseInfoAdapter,
-} from '../../../utils/adapters/response.adapter';
+import { ResponseAdapter, ResponseInfoAdapter } from '../../../utils/adapters/response.adapter';
 import { Wallet } from '../wallets.model';
 
 export class ApiWalletsResponseDto implements ResponseAdapter<Wallet> {

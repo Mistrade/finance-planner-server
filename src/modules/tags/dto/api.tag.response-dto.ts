@@ -13,7 +13,7 @@ export class ApiTagResponseDto implements ResponseAdapter<Tag> {
     default: Tag,
   })
   data: Tag;
-  
+
   @ApiProperty(API_INFO_SWAGGER_EXAMPLE)
   info?: ResponseInfoAdapter;
 }

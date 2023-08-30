@@ -10,7 +10,7 @@ export class CreateTagDto {
     required: true,
     maxLength: TAG_TITLE_MAX_LENGTH,
     minLength: TAG_TITLE_MIN_LENGTH,
-    example: "Топливо"
+    example: 'Топливо',
   })
   @IsString({ message: TAG_MESSAGES.TITLE_SHOULD_BE_STRING })
   @MinLength(TAG_TITLE_MIN_LENGTH, { message: TAG_MESSAGES.TITLE_MIN_LENGTH })

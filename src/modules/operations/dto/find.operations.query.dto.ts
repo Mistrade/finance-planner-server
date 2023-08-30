@@ -41,13 +41,13 @@ export class FindOperationsQueryDto {
     description: 'Искать по идентификатору кошелька.',
   })
   walletIds?: Array<string> | string;
-  
+
   @ApiProperty({
-    name: "excludeWalletIds",
+    name: 'excludeWalletIds',
     type: [String],
     required: false,
     example: [new mongoose.Types.ObjectId(123).toString()],
-    description: 'Исключить записи содержащие указанный идентификатор кошелька. Игнорируется, если указан walletIds.'
+    description: 'Исключить записи содержащие указанный идентификатор кошелька. Игнорируется, если указан walletIds.',
   })
   excludeWalletIds?: Array<string> | string;
 

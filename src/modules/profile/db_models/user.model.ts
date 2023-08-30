@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty } from '@nestjs/swagger';
-import mongoose, { HydratedDocument, Model, Types } from "mongoose";
+import mongoose, { HydratedDocument, Model, Types } from 'mongoose';
 import { LOGIN_MAX_LENGTH_COUNT, LOGIN_MIN_LENGTH_COUNT } from '../../session/session.constants';
 
 export type TUserDocument = HydratedDocument<User, any>;

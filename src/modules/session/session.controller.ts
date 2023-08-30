@@ -21,9 +21,8 @@ import { SignInServiceMethodReturned } from './types/session.types';
 @ApiTags(SWAGGER_TAGS.SESSION)
 @Controller('session')
 export class SessionController {
-  constructor(private readonly sessionService: SessionService, private readonly walletService: WalletsService) {
-  }
-  
+  constructor(private readonly sessionService: SessionService, private readonly walletService: WalletsService) {}
+
   @UsePipes(new ValidationPipe())
   @Post('signUp')
   @ApiOperation({ summary: 'Регистрация пользователя' })
@@ -36,23 +35,23 @@ export class SessionController {
   @ApiResponse(DEFAULT_SWAGGER_RESPONSE)
   async register(@Body() dto: SessionDto): Promise<ApiUserResponseDto> {
     const result: TUserDocument | TProfileExceptionCodes = await this.sessionService.registerUser(dto);
-    
+
     if (typeof result === 'string') {
       throw ExceptionFactory.create({ moduleName: 'profile', code: result }, null);
     }
-    
+
     const wallets = await this.walletService.createBaseWallets(result._id);
-    
+
     if (!wallets.length) {
       throw ExceptionFactory.create({ moduleName: 'session', code: 'REG_CANT_CREATE_BASE_WALLETS' }, null);
     }
-    
+
     return new ResponseAdapter(result, {
       type: EXCEPTION_TYPES.SUCCESS,
       message: SESSION_MESSAGES.USER_SUCCESSFULLY_CREATED,
     });
   }
-  
+
   @UsePipes(new ValidationPipe())
   @Post('signIn')
   @ApiOperation({ summary: 'Авторизация пользователя' })
@@ -72,21 +71,21 @@ export class SessionController {
       dto,
       token,
     );
-    
+
     if ('moduleName' in data && 'code' in data) {
       throw ExceptionFactory.create(data, null);
     }
-    
+
     this.sessionService.setSessionTokenToResponse(data.token, res);
-    
+
     const result: ApiUserResponseDto = new ResponseAdapter(data.userInfo, {
       type: EXCEPTION_TYPES.SUCCESS,
       message: SESSION_MESSAGES.USER_SUCCESS_LOGIN,
     });
-    
+
     return res.status(HttpStatus.OK).json(result);
   }
-  
+
   @Post('logout')
   @HttpCode(HttpStatus.OK)
   @ApiCookieAuth(COOKIE_NAMES.ACCESS_TOKEN)

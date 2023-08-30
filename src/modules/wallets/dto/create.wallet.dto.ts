@@ -1,22 +1,9 @@
 import { ApiProperty } from '@nestjs/swagger';
-import {
-  IsEnum,
-  IsNumber,
-  IsString,
-  MaxLength,
-  MinLength,
-} from 'class-validator';
-import {
-  WALLET_MESSAGES,
-  WALLET_NAME_MAX_LENGTH,
-  WALLET_NAME_MIN_LENGTH,
-  WALLET_TYPE,
-} from '../wallets.constants';
+import { IsEnum, IsNumber, IsString, MaxLength, MinLength } from 'class-validator';
+import { WALLET_MESSAGES, WALLET_NAME_MAX_LENGTH, WALLET_NAME_MIN_LENGTH, WALLET_TYPE } from '../wallets.constants';
 import { Wallet } from '../wallets.model';
 
-export class CreateWalletDto
-  implements Pick<Wallet, 'balance' | 'name' | 'type'>
-{
+export class CreateWalletDto implements Pick<Wallet, 'balance' | 'name' | 'type'> {
   @IsNumber({}, { message: WALLET_MESSAGES.BALANCE_SHOULD_BE_NUMBER })
   @ApiProperty({ name: 'balance', type: Number })
   balance: number;

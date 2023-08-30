@@ -1,5 +1,5 @@
-import { Module } from "@nestjs/common";
-import { ResolveService } from "./resolve.service";
+import { Module } from '@nestjs/common';
+import { ResolveService } from './resolve.service';
 
 @Module({
   providers: [ResolveService],

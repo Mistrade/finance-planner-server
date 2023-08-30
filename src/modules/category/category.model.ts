@@ -1,16 +1,8 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty } from '@nestjs/swagger';
-import mongoose, {
-  HydratedDocument,
-  Model,
-  SchemaTypes,
-  Types,
-} from 'mongoose';
+import mongoose, { HydratedDocument, Model, SchemaTypes, Types } from 'mongoose';
 import { User } from '../profile/db_models/user.model';
-import {
-  CATEGORY_NAME_MAX_LENGTH,
-  CATEGORY_NAME_MIN_LENGTH,
-} from './category.constants';
+import { CATEGORY_NAME_MAX_LENGTH, CATEGORY_NAME_MIN_LENGTH } from './category.constants';
 
 export type TCategoryDocument = HydratedDocument<Category>;
 export type TCategoryModel = Model<TCategoryDocument>;

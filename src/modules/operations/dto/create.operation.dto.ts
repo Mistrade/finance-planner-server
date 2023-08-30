@@ -23,8 +23,9 @@ import {
   OPERATION_REPEAT_PATTERNS,
   OPERATION_STATE,
   OPERATION_TITLE_MAX_LENGTH,
-  OPERATION_TITLE_MIN_LENGTH, OPERATION_TYPES
-} from "../operations.constants";
+  OPERATION_TITLE_MIN_LENGTH,
+  OPERATION_TYPES,
+} from '../operations.constants';
 
 export class CreateOperationDto {
   @ApiProperty({
@@ -50,16 +51,15 @@ export class CreateOperationDto {
   })
   @IsString({ message: OPERATION_MODEL_MESSAGES.DTO_WALLET_SHOULD_BE_STRING })
   wallet: string;
-  
-  
+
   @ApiProperty({
-    name: "type",
+    name: 'type',
     example: OPERATION_TYPES.INCOME,
     enum: Object.values(OPERATION_TYPES),
     required: true,
-    description: "Тип операции: Доход или расход.",
+    description: 'Тип операции: Доход или расход.',
   })
-  @IsEnum(OPERATION_TYPES, {message: OPERATION_MODEL_MESSAGES.OPERATION_TYPE_SHOULD_BE_ENUM})
+  @IsEnum(OPERATION_TYPES, { message: OPERATION_MODEL_MESSAGES.OPERATION_TYPE_SHOULD_BE_ENUM })
   type: OPERATION_TYPES;
 
   @ApiProperty({

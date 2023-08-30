@@ -3,12 +3,10 @@ import { ExceptionFactory } from '../../utils/exception/exception.factory';
 import { TUserDocument } from '../profile/db_models/user.model';
 import { AuthRequest } from './session.guard';
 
-export const GetCookies = createParamDecorator(
-  (data: string, ctx: ExecutionContext) => {
-    const request = ctx.switchToHttp().getRequest();
-    return data ? request.cookies?.[data] || null : null;
-  },
-);
+export const GetCookies = createParamDecorator((data: string, ctx: ExecutionContext) => {
+  const request = ctx.switchToHttp().getRequest();
+  return data ? request.cookies?.[data] || null : null;
+});
 
 export const UserInfo = createParamDecorator(
   (data: void, ctx: ExecutionContext): TUserDocument => {

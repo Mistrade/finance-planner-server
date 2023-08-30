@@ -1,10 +1,16 @@
 import { HttpException, HttpStatus } from '@nestjs/common';
 import { exhaustiveCheck } from '../../utils/exception.data';
 import { RejectException } from '../../utils/exception/reject.exception';
-import { IExceptionFactoryModulesMap, TExceptionMeta } from "../../utils/exception/types";
+import { IExceptionFactoryModulesMap, TExceptionMeta } from '../../utils/exception/types';
 import { OPERATION_API_MESSAGES } from './operations.constants';
 
-export type TOperationExceptionCodes = 'NOTHING_TO_REMOVE' | 'NOT_FOUND' | "PREV_VALUE_EQUAL_NEXT" | "DEFAULT" | "INVALID_DATE" | "INVALID_DTO";
+export type TOperationExceptionCodes =
+  | 'NOTHING_TO_REMOVE'
+  | 'NOT_FOUND'
+  | 'PREV_VALUE_EQUAL_NEXT'
+  | 'DEFAULT'
+  | 'INVALID_DATE'
+  | 'INVALID_DTO';
 
 export abstract class OperationException {
   static create<Data>(module: IExceptionFactoryModulesMap['operations'], data?: Data | null, meta?: TExceptionMeta): HttpException {

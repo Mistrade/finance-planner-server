@@ -1,4 +1,4 @@
-import { ApiProperty } from "@nestjs/swagger";
+import { ApiProperty } from '@nestjs/swagger';
 import { IsEmail, IsString, MaxLength, MinLength } from 'class-validator';
 import {
   LOGIN_MAX_LENGTH_COUNT,
@@ -9,7 +9,14 @@ import {
 } from '../session.constants';
 
 export class SessionDto {
-  @ApiProperty({name: "login", example: "example@example.com", description: "Email пользователя", nullable: false, required: true, type: String})
+  @ApiProperty({
+    name: 'login',
+    example: 'example@example.com',
+    description: 'Email пользователя',
+    nullable: false,
+    required: true,
+    type: String,
+  })
   @IsString({ message: SESSION_MESSAGES.LOGIN_SHOULD_BE_STRING })
   @IsEmail({}, { message: SESSION_MESSAGES.LOGIN_SHOULD_BE_EMAIL })
   @MinLength(LOGIN_MIN_LENGTH_COUNT, {
@@ -19,8 +26,15 @@ export class SessionDto {
     message: SESSION_MESSAGES.LOGIN_MAX_LENGTH,
   })
   login: string;
-  
-  @ApiProperty({name: "password", example: "12345678910", description: "Пароль пользователя", nullable: false, required: true, type: String})
+
+  @ApiProperty({
+    name: 'password',
+    example: '12345678910',
+    description: 'Пароль пользователя',
+    nullable: false,
+    required: true,
+    type: String,
+  })
   @IsString({ message: SESSION_MESSAGES.PASSWORD_SHOULD_BE_STRING })
   @MinLength(PASSWORD_MIN_LENGTH_COUNT, {
     message: SESSION_MESSAGES.PASSWORD_MIN_LENGTH,

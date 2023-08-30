@@ -18,10 +18,6 @@ export class SwaggerBuilder {
   }
 
   private createConfig() {
-    return new DocumentBuilder()
-      .setTitle('Сервис')
-      .setDescription('Описание сервиса')
-      .setVersion('1.0')
-      .build();
+    return new DocumentBuilder().setTitle('Сервис').setDescription('Описание сервиса').setVersion('1.0').build();
   }
 }

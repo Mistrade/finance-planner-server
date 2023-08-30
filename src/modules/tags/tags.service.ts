@@ -2,8 +2,6 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import mongoose, { Types } from 'mongoose';
 import { IExceptionFactoryModulesMap } from '../../utils/exception/types';
-import { TCategoryDocument } from "../category/category.model";
-import { TUserDocument } from '../profile/db_models/user.model';
 import { ResolveService } from '../resolve/resolve.service';
 import { CreateTagDto } from './dto/create.tag.dto';
 import { Tag, TTagDocument, TTagModel } from './tags.model';

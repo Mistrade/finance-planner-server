@@ -17,7 +17,7 @@ import { ApiBody, ApiOkResponse, ApiOperation, ApiParam, ApiTags } from '@nestjs
 import mongoose from 'mongoose';
 import { ResponseAdapter } from '../../utils/adapters/response.adapter';
 import { ExceptionFactory } from '../../utils/exception/exception.factory';
-import { RejectException } from "../../utils/exception/reject.exception";
+import { RejectException } from '../../utils/exception/reject.exception';
 import { SWAGGER_TAGS } from '../../utils/swagger/swagger.constants';
 import { TUserDocument, User } from '../profile/db_models/user.model';
 import { UserInfo } from '../session/session.decorators';
@@ -42,9 +42,8 @@ export class OperationsController {
     private operationsFindService: OperationsFindService,
     private operationBuilderService: OperationsBuilderService,
     private updateService: OperationsUpdateService,
-  ) {
-  }
-  
+  ) {}
+
   @Get('schema')
   @UsePipes(new ValidationPipe())
   @ApiOperation({ summary: 'Получить список операций в виде объекта по фильтрам' })
@@ -59,16 +58,16 @@ export class OperationsController {
   ): Promise<ApiSchemaOperationsDto> {
     console.log(query);
     const result = await this.operationsFindService.findByFilters(query, userInfo);
-    
+
     if (!result || !result?.length) {
       throw ExceptionFactory.create({ moduleName: 'operations', code: 'NOT_FOUND' }, {});
     }
-    
+
     const schema: ISchemaOperationsMain = await this.operationBuilderService.buildSchema(result);
-    
+
     return new ResponseAdapter(schema);
   }
-  
+
   @Get(':operationId')
   @ApiOperation({ summary: 'Получить операцию по ID' })
   @HttpCode(HttpStatus.OK)
@@ -77,28 +76,28 @@ export class OperationsController {
     @UserInfo() userInfo: TUserDocument,
   ): Promise<ApiOperationResponseDto> {
     const result = await this.operationsFindService.findById(new mongoose.Types.ObjectId(id), userInfo._id);
-    
+
     if (!result) {
       throw ExceptionFactory.create({ moduleName: 'operations', code: 'NOT_FOUND' }, null);
     }
-    
+
     return new ResponseAdapter(result);
   }
-  
+
   @Get()
   @UsePipes(new ValidationPipe())
   @ApiOperation({ summary: 'Получить список операций по фильтрам' })
   @HttpCode(HttpStatus.OK)
   async getOperations(@UserInfo() userInfo: User, @Query() queryParams: FindOperationsQueryDto) {
     const result = await this.operationsFindService.findByFilters(queryParams, userInfo);
-    
+
     if (!result.length || !result) {
       throw ExceptionFactory.create({ moduleName: 'operations', code: 'NOT_FOUND' }, []);
     }
-    
+
     return new ResponseAdapter(result);
   }
-  
+
   @Post()
   @UsePipes(new ValidationPipe())
   @ApiOperation({ summary: 'Создать операцию' })
@@ -112,10 +111,16 @@ export class OperationsController {
     @UserInfo() userInfo: TUserDocument,
   ): Promise<ApiOperationResponseDto> {
     const result = await this.operationsService.createOperation(dto, userInfo);
-    
+
     return new ResponseAdapter(result);
   }
-  
+
+  @Post('many')
+  @ApiOperation({ summary: '123' })
+  async createMany(@UserInfo() user: User) {
+    return this.operationsService.createMany(user);
+  }
+
   @Delete(':operationId')
   @ApiOperation({ summary: 'Удалить операцию' })
   @HttpCode(HttpStatus.OK)
@@ -124,14 +129,14 @@ export class OperationsController {
     @UserInfo() userInfo: User,
   ): Promise<ApiOperationResponseDto> {
     const result = await this.operationsService.removeOperation(new mongoose.Types.ObjectId(id), userInfo._id);
-    
+
     if (!result) {
       throw ExceptionFactory.create({ moduleName: 'operations', code: 'NOTHING_TO_REMOVE' }, null);
     }
-    
+
     return new ResponseAdapter(result);
   }
-  
+
   @Patch(':operationId/:operationFieldName')
   @UsePipes(new ValidationPipe())
   @ApiOperation({ summary: 'Обновить данные по операции' })
@@ -215,15 +220,15 @@ export class OperationsController {
     @Body() dto: UpdateOperationDto,
   ) {
     const result = await this.updateService.updateOneById(new mongoose.Types.ObjectId(id), field, dto, user);
-    
+
     if (result instanceof RejectException) {
       throw result;
     }
-    
-    if(!result){
+
+    if (!result) {
       throw ExceptionFactory.createDefault(null);
     }
-    
+
     return new ResponseAdapter(result);
   }
 }

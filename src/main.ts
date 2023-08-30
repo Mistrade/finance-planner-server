@@ -9,12 +9,12 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.setGlobalPrefix('api');
   app.use(cookieParser());
-  
+
   const httpAdapterHost = app.get(HttpAdapterHost);
   app.useGlobalFilters(new AllExceptionFilter(httpAdapterHost));
-  
+
   const swagger = new SwaggerBuilder(app);
-  
+
   await app.listen(3000, () => {
     setupDayjsPlugins();
   });

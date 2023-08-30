@@ -70,7 +70,8 @@ export enum OPERATION_API_MESSAGES {
   DEFAULT = `Произошла непредвиденная ошибка. Уже работаем над ее устранением!`,
   UNDEFINED_UPDATE_PROPERTY = `Неизвестный ключ для обновления данных по операции.`,
   INVALID_DATE = `Получена невалидная дата.`,
-  INVALID_DTO = `Получены невалидные даты для запроса.`
+  INVALID_DTO = `Получены невалидные даты для запроса.`,
+  SUCCESS_REMOVED = `Операция успешно удалена.`
 }
 
 export enum OPERATION_STATE {

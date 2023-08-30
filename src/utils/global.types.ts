@@ -1,4 +1,4 @@
-import { EXCEPTION_TYPES, IResponseAdapterInfo } from "./exception.data";
+import { EXCEPTION_TYPES } from './exception.data';
 
 export type CustomResponse<DataType> = {
   data: DataType | null;
