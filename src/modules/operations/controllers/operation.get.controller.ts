@@ -13,7 +13,7 @@ import { ApiCookieAuth, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swa
 import mongoose from 'mongoose';
 import { ResponseAdapter } from '../../../utils/adapters/response.adapter';
 import { ExceptionFactory } from '../../../utils/exception/exception.factory';
-import { CONTROLLER_PATHS } from "../../../utils/global.constants";
+import { CONTROLLER_PATHS } from '../../../utils/global.constants';
 import { SWAGGER_TAGS } from '../../../utils/swagger/swagger.constants';
 import { TUserDocument, User } from '../../profile/db_models/user.model';
 import { COOKIE_NAMES } from '../../session/session.constants';
@@ -21,7 +21,9 @@ import { UserInfo } from '../../session/session.decorators';
 import { SessionGuard } from '../../session/session.guard';
 import { ApiOperationResponseDto } from '../dto/api.operation.response-dto';
 import { FindOperationsQueryDto } from '../dto/find.operations.query.dto';
-import { ApiSchemaOperationsDto, ISchemaOperationsMain } from '../dto/schema.operations.dto';
+import { ApiSchemaOperationsDto } from '../dto/schema.operations.dto';
+import { Operation } from '../operations.model';
+import { OperationsSchema } from '../schema/operations.schema';
 import { OperationsBuilderService } from '../services/operations.builder.service';
 import { OperationsFindService } from '../services/operations.find.service';
 
@@ -48,16 +50,16 @@ export class OperationGetController {
     @UserInfo() userInfo: User,
     @Query() query: FindOperationsQueryDto,
   ): Promise<ApiSchemaOperationsDto> {
-    const result = await this.operationsFindService.findByFilters(query, userInfo, {
+    const result: Array<Operation> = await this.operationsFindService.findByFilters(query, userInfo, {
       lean: true,
-      projection: { repeat: 0, repeatSource: 0, repeatPattern: 0, endRepeatDate: 0 },
+      projection: { repeat: 0, repeatSource: 0, repeatPattern: 0, endRepeatDate: 0, __v: 0, updatedAt: 0, user: 0 },
     });
     
     if (!result || !result?.length) {
       throw ExceptionFactory.create({ moduleName: 'operations', code: 'NOT_FOUND' }, {});
     }
     
-    const schema: ISchemaOperationsMain = await this.operationBuilderService.buildSchema(result);
+    const schema = new OperationsSchema(result);
     
     return new ResponseAdapter(schema);
   }
