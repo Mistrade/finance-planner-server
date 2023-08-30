@@ -25,9 +25,7 @@ export class ProfileService {
     return user;
   }
 
-  async createNewUser(
-    dto: SessionDto,
-  ): Promise<TUserDocument | TProfileExceptionCodes> {
+  async createNewUser(dto: SessionDto): Promise<TUserDocument | TProfileExceptionCodes> {
     const candidate = await this.userModel.findOne({
       email: dto.login,
     });
@@ -36,10 +34,7 @@ export class ProfileService {
       return 'USER_ALREADY_EXISTS';
     }
 
-    const passwordHash = await bcrypt.hash(
-      dto.password,
-      HASH_PASSWORD_SALT_VALUE,
-    );
+    const passwordHash = await bcrypt.hash(dto.password, HASH_PASSWORD_SALT_VALUE);
 
     return new this.userModel({
       email: dto.login,

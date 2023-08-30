@@ -1,9 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { API_INFO_SWAGGER_EXAMPLE } from "../../../utils/adapters/example";
-import {
-  ResponseAdapter,
-  ResponseInfoAdapter,
-} from '../../../utils/adapters/response.adapter';
+import { API_INFO_SWAGGER_EXAMPLE } from '../../../utils/adapters/example';
+import { ResponseAdapter, ResponseInfoAdapter } from '../../../utils/adapters/response.adapter';
 import { Category } from '../category.model';
 
 export class ApiCategoryResponseDto implements ResponseAdapter<Category> {

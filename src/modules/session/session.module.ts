@@ -1,8 +1,5 @@
-import { CacheModule } from '@nestjs/cache-manager';
 import { Global, Module } from '@nestjs/common';
-import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
-import { redisClusterStore, redisInsStore, redisStore } from "cache-manager-redis-yet";
 import * as process from 'process';
 import { ProfileModule } from '../profile/profile.module';
 import { WalletsModule } from '../wallets/wallets.module';

@@ -1,7 +1,7 @@
 import { HttpException, HttpStatus } from '@nestjs/common';
 import { exhaustiveCheck } from '../../utils/exception.data';
 import { RejectException } from '../../utils/exception/reject.exception';
-import { IExceptionFactoryModulesMap, TExceptionMeta } from "../../utils/exception/types";
+import { IExceptionFactoryModulesMap, TExceptionMeta } from '../../utils/exception/types';
 import { CATEGORY_MESSAGES } from './category.constants';
 
 export type TCategoriesExceptionCodes =

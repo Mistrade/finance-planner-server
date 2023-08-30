@@ -9,7 +9,7 @@ import { CategoryService } from '../../category/category.service';
 import { User } from '../../profile/db_models/user.model';
 import { ResolveService } from '../../resolve/resolve.service';
 import { TagsService } from '../../tags/tags.service';
-import { WalletCalculateService } from '../../wallets/wallet.calculate.service';
+import { WalletCalculateService } from '../../wallets/services/wallet.calculate.service';
 import { UpdateOperationDto } from '../dto/operation.fields.dto';
 import { OPERATION_API_MESSAGES, OPERATION_STATE, OPERATION_TYPES } from '../operations.constants';
 import { Operation, TOperationDocument, TOperationModel } from '../operations.model';
@@ -23,9 +23,8 @@ export class OperationsUpdateService {
     private readonly resolveService: ResolveService,
     private readonly categoryService: CategoryService,
     private readonly tagsService: TagsService,
-  ) {
-  }
-  
+  ) {}
+
   async updateOneById(
     id: Types.ObjectId,
     field: keyof UpdateOperationDto,
@@ -61,48 +60,48 @@ export class OperationsUpdateService {
       }
     }
   }
-  
+
   private async updateDescription(
     id: Types.ObjectId,
     userId: Types.ObjectId,
     value: string,
   ): Promise<TOperationDocument | null | RejectException<Operation>> {
     const doc: TOperationDocument | null = await this.findService.findById(id, userId);
-    
+
     if (!doc) {
       return ExceptionFactory.create({ moduleName: 'operations', code: 'NOT_FOUND' }, null);
     }
     if (doc.description === value) {
       return ExceptionFactory.create({ moduleName: 'operations', code: 'PREV_VALUE_EQUAL_NEXT' }, null);
     }
-    
+
     doc.description = value || '';
-    
+
     return doc.save({ validateModifiedOnly: true });
   }
-  
+
   private async updateDate(
     id: Types.ObjectId,
     userId: Types.ObjectId,
     value: string,
   ): Promise<TOperationDocument | null | RejectException<Operation>> {
     const date = dayjs(value).utc();
-    
+
     if (!date.isValid()) {
       return ExceptionFactory.create({ moduleName: 'operations', code: 'INVALID_DATE' }, null);
     }
-    
+
     const doc: TOperationDocument | null = await this.findService.findById(id, userId);
-    
+
     if (!doc) {
       return ExceptionFactory.create({ moduleName: 'operations', code: 'NOT_FOUND' }, null);
     }
-    
+
     doc.date = date.toDate();
-    
+
     return doc.save({ validateModifiedOnly: true });
   }
-  
+
   private async updateCategories(
     id: Types.ObjectId,
     userId: Types.ObjectId,
@@ -111,50 +110,50 @@ export class OperationsUpdateService {
     if (!value) {
       return ExceptionFactory.create({ moduleName: 'operations', code: 'INVALID_DTO' });
     }
-    
+
     const values = typeof value === 'string' ? [value] : Array.isArray(value) ? value : null;
-    
+
     if (!values) {
       return ExceptionFactory.create({ moduleName: 'operations', code: 'INVALID_DTO' });
     }
-    
+
     const categories = await this.categoryService.resolveStringCategories(values, userId);
-    
+
     const doc = await this.findService.findById(id, userId);
-    
+
     if (!doc) {
       return ExceptionFactory.create({ moduleName: 'operations', code: 'NOT_FOUND' });
     }
-    
+
     doc.category = categories;
-    
+
     return doc.save({ validateModifiedOnly: true });
   }
-  
+
   private async updateTags(
     id: Types.ObjectId,
     userId: Types.ObjectId,
     value: string | Array<string>,
   ): Promise<TOperationDocument | null | RejectException> {
     if (!value) return ExceptionFactory.create({ moduleName: 'operations', code: 'INVALID_DTO' });
-    
+
     const values = typeof value === 'string' ? [value] : Array.isArray(value) ? value : null;
-    
+
     if (!values) return ExceptionFactory.create({ moduleName: 'operations', code: 'INVALID_DTO' });
-    
+
     const tags = await this.tagsService.resolveStringTags(values, userId);
-    
+
     const doc = await this.findService.findById(id, userId);
-    
+
     if (!doc) {
       return ExceptionFactory.create({ moduleName: 'operations', code: 'NOT_FOUND' });
     }
-    
+
     doc.tags = tags;
-    
+
     return doc.save({ validateModifiedOnly: true });
   }
-  
+
   private async updateType(
     id: Types.ObjectId,
     userId: Types.ObjectId,
@@ -163,28 +162,28 @@ export class OperationsUpdateService {
     if (!value || !Object.values(OPERATION_TYPES).includes(value)) {
       return ExceptionFactory.create({ moduleName: 'operations', code: 'INVALID_DTO' });
     }
-    
+
     const doc = await this.findService.findById(id, userId);
-    
+
     if (!doc) {
       return ExceptionFactory.create({ moduleName: 'operations', code: 'NOT_FOUND' });
     }
-    
+
     if (doc.type === value) {
       return ExceptionFactory.create({ moduleName: 'operations', code: 'PREV_VALUE_EQUAL_NEXT' });
     }
-    
+
     const prev = doc.type;
     doc.type = value;
-    
-    await doc.save({ validateModifiedOnly: true });
-    await this.walletCalculateService.calculateUpdatedTypeOperation(doc, prev, userId);
-    
-    console.log('Все ок: ', JSON.stringify(doc));
+
+    await Promise.all([
+      doc.save({ validateModifiedOnly: true }),
+      this.walletCalculateService.calculateUpdatedTypeOperation(doc, prev, userId),
+    ]);
     
     return doc;
   }
-  
+
   private async updateCost(
     id: Types.ObjectId,
     userId: Types.ObjectId,
@@ -193,52 +192,58 @@ export class OperationsUpdateService {
     if (value <= 0) {
       return ExceptionFactory.create({ moduleName: 'operations', code: 'INVALID_DTO' });
     }
-    
+
     const doc = await this.findService.findById(id, userId);
     if (!doc) return ExceptionFactory.create({ moduleName: 'operations', code: 'NOT_FOUND' });
     if (doc.cost === value) return ExceptionFactory.create({ moduleName: 'operations', code: 'PREV_VALUE_EQUAL_NEXT' });
-    
+
     const prevState = Math.abs(doc.cost);
     doc.cost = Math.abs(value);
-    
-    await doc.save({ validateModifiedOnly: true });
-    await this.walletCalculateService.calculateUpdatedCostOperation(doc, prevState, userId);
-    
+
+    await Promise.all([
+      doc.save({ validateModifiedOnly: true }),
+      this.walletCalculateService.calculateUpdatedCostOperation(doc, prevState, userId),
+    ]);
+
     return doc;
   }
-  
+
   private async updateTitle(
     id: Types.ObjectId,
     userId: Types.ObjectId,
     value: string,
   ): Promise<TOperationDocument | null | RejectException> {
     if (!value) return ExceptionFactory.create({ moduleName: 'operations', code: 'INVALID_DTO' });
-    
+
     const doc = await this.findService.findById(id, userId);
     if (!doc) return ExceptionFactory.create({ moduleName: 'operations', code: 'NOT_FOUND' });
-    
+
     doc.title = value;
-    
+
     return doc.save({ validateModifiedOnly: true });
   }
-  
+
   private async updateState(
     id: Types.ObjectId,
     userId: Types.ObjectId,
     value: OPERATION_STATE,
   ): Promise<TOperationDocument | null | RejectException> {
-    if (!value || !Object.values(OPERATION_STATE).includes(value)) return ExceptionFactory.create({moduleName: "operations", code: "INVALID_DTO"});
-    
+    if (!value || !Object.values(OPERATION_STATE).includes(value))
+      return ExceptionFactory.create({ moduleName: 'operations', code: 'INVALID_DTO' });
+
     const doc = await this.findService.findById(id, userId);
-    if (!doc) return ExceptionFactory.create({moduleName: "operations", code: "NOT_FOUND"});
-    if (doc.state === value) return ExceptionFactory.create({moduleName: "operations", code: "PREV_VALUE_EQUAL_NEXT"});
-    
+    if (!doc) return ExceptionFactory.create({ moduleName: 'operations', code: 'NOT_FOUND' });
+    if (doc.state === value)
+      return ExceptionFactory.create({ moduleName: 'operations', code: 'PREV_VALUE_EQUAL_NEXT' });
+
     const prevState = doc.state;
     doc.state = value;
-    
-    await doc.save({ validateModifiedOnly: true });
-    await this.walletCalculateService.calculateUpdatedStateOperation(doc, prevState, userId);
-    
+
+    await Promise.all([
+      doc.save({ validateModifiedOnly: true }),
+      this.walletCalculateService.calculateUpdatedStateOperation(doc, prevState, userId),
+    ]);
+
     return doc;
   }
 }

@@ -3,28 +3,38 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import Redis from 'ioredis';
 import mongoose, { Types } from 'mongoose';
-import { REDIS_NAMESPACES } from '../../utils/global.constants';
-import { TUserDocument } from '../profile/db_models/user.model';
-import { SubscribeService } from '../subscribe/subscribe.service';
-import { CreateWalletDto } from './dto/create.wallet.dto';
-import { WALLET_CREATOR, WALLET_TYPE } from './wallets.constants';
-import { TWalletsExceptionCodes } from './wallets.exception';
-import { TWalletDocument, TWalletModel, Wallet } from './wallets.model';
+import { ExceptionFactory } from '../../../utils/exception/exception.factory';
+import { RejectException } from '../../../utils/exception/reject.exception';
+import { REDIS_NAMESPACES } from '../../../utils/global.constants';
+import { TUserDocument } from '../../profile/db_models/user.model';
+import { CreateWalletDto } from '../dto/create.wallet.dto';
+import { WALLET_CREATOR, WALLET_TYPE } from '../wallets.constants';
+import { TWalletsExceptionCodes } from '../wallets.exception';
+import { TWalletDocument, TWalletModel, Wallet } from '../wallets.model';
+import { WalletCalculateService } from './wallet.calculate.service';
 
 @Injectable()
 export class WalletsService {
   constructor(
     @InjectModel(Wallet.name) private readonly walletModel: TWalletModel,
+    private readonly calculateService: WalletCalculateService,
     @InjectRedis(REDIS_NAMESPACES.WALLET_STATE) private readonly redis: Redis,
-    private readonly subscribeService: SubscribeService,
   ) {
   }
   
-  async findOneById(userId: Types.ObjectId, walletId: Types.ObjectId): Promise<TWalletDocument | null> {
-    return this.walletModel.findOne({
+  async findOneById(userId: Types.ObjectId, walletId: Types.ObjectId): Promise<TWalletDocument | RejectException> {
+    const wallet = await this.walletModel.findOne({
       user: userId,
       _id: walletId,
     });
+    
+    if (!wallet) {
+      return ExceptionFactory.create({ moduleName: 'wallets', code: 'NOT_FOUND' });
+    }
+    
+    this.calculateService.asyncReCalculateWallets([wallet], userId).catch((r) => console.log(r));
+    
+    return wallet;
   }
   
   async findManyByUserId(userId: Types.ObjectId): Promise<Array<TWalletDocument>> {
@@ -64,6 +74,7 @@ export class WalletsService {
         planningConsumption: 0,
         planningIncome: 0,
         lastOperationDate: null,
+        lastCalculateDate: null,
       });
     } else {
       result.push(baseDebitWallet);
@@ -82,6 +93,7 @@ export class WalletsService {
         lastOperationDate: null,
         planningConsumption: 0,
         planningIncome: 0,
+        lastCalculateDate: null,
       });
     } else {
       result.push(baseMoneyWallet);

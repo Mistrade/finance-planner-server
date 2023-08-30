@@ -13,7 +13,7 @@ export class ApiUserResponseDto implements ResponseAdapter<User> {
     example: User,
   })
   data: User;
-  
+
   @ApiProperty(API_INFO_SWAGGER_EXAMPLE)
   info?: ResponseInfoAdapter;
 }

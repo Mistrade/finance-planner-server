@@ -34,22 +34,22 @@ export class ResponseInfoAdapter implements IResponseAdapterInfo<any> {
     required: true,
   })
   datetime: string;
-  
+
   @ApiProperty({
-    name: "service",
+    name: 'service',
     required: false,
     nullable: false,
     type: String,
-    description: "Наименование сервиса, в котором произошла ошибка",
+    description: 'Наименование сервиса, в котором произошла ошибка',
   })
   service?: string;
-  
+
   @ApiProperty({
-    name: "serviceErrorCode",
+    name: 'serviceErrorCode',
     required: false,
     nullable: false,
     type: String,
-    description: "Внутренний код ошибки сервиса, в котором произошла ошибка."
+    description: 'Внутренний код ошибки сервиса, в котором произошла ошибка.',
   })
   serviceErrorCode?: string;
 

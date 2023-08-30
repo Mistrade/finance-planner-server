@@ -1,10 +1,10 @@
 import { TCategoriesExceptionCodes } from '../../modules/category/category.exception';
-import { TOperationExceptionCodes } from "../../modules/operations/operations.exception";
+import { TOperationExceptionCodes } from '../../modules/operations/operations.exception';
 import { TProfileExceptionCodes } from '../../modules/profile/profile.exception';
 import { TSessionExceptionCodes } from '../../modules/session/session.exception';
 import { TTagsExceptionCodes } from '../../modules/tags/tags.exception';
 import { TWalletsExceptionCodes } from '../../modules/wallets/wallets.exception';
-import { IResponseAdapterInfo } from "../exception.data";
+import { IResponseAdapterInfo } from '../exception.data';
 
 export type TTargetsExceptionCodes = 'CANT_CREATE_TARGET' | 'NOT_FOUND_Target';
 

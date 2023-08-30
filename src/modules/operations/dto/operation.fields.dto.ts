@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Type } from "class-transformer";
+import { Type } from 'class-transformer';
 import {
   ArrayMaxSize,
   IsArray,
@@ -9,15 +9,19 @@ import {
   IsOptional,
   IsString,
   MaxLength,
-  MinLength
-} from "class-validator";
+  MinLength,
+} from 'class-validator';
 import mongoose from 'mongoose';
 import {
-  OPERATION_DESCRIPTION_MAX_LENGTH, OPERATION_MAX_CATEGORIES, OPERATION_MAX_TAGS,
+  OPERATION_DESCRIPTION_MAX_LENGTH,
+  OPERATION_MAX_CATEGORIES,
+  OPERATION_MAX_TAGS,
   OPERATION_MODEL_MESSAGES,
-  OPERATION_STATE, OPERATION_TITLE_MAX_LENGTH, OPERATION_TITLE_MIN_LENGTH,
-  OPERATION_TYPES
-} from "../operations.constants";
+  OPERATION_STATE,
+  OPERATION_TITLE_MAX_LENGTH,
+  OPERATION_TITLE_MIN_LENGTH,
+  OPERATION_TYPES,
+} from '../operations.constants';
 import { Operation } from '../operations.model';
 
 type DtoFields = keyof Omit<

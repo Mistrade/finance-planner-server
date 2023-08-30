@@ -1,4 +1,4 @@
-import { IExceptionFactoryModuleNames, IExceptionFactoryModulesMap } from "./exception/types";
+import { IExceptionFactoryModuleNames, IExceptionFactoryModulesMap } from './exception/types';
 
 export enum EXCEPTION_TYPES {
   ERROR = 'error',

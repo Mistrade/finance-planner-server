@@ -29,9 +29,8 @@ import { CreateCategoryDto } from './dto/create.category.dto';
 @ApiTags(SWAGGER_TAGS.CATEGORIES)
 @Controller('categories')
 export class CategoryController {
-  constructor(private categoryService: CategoryService) {
-  }
-  
+  constructor(private categoryService: CategoryService) {}
+
   @Get(':categoryId')
   @UseGuards(SessionGuard)
   @HttpCode(HttpStatus.OK)
@@ -53,14 +52,14 @@ export class CategoryController {
   ): Promise<ApiCategoryResponseDto> {
     const objectId = new mongoose.Types.ObjectId(categoryId);
     const category: TCategoryDocument | null = await this.categoryService.findCategoryById(objectId, userInfo._id);
-    
+
     if (!category) {
       throw ExceptionFactory.create({ moduleName: 'categories', code: 'NOT_FOUND_BY_ID' }, null);
     }
-    
+
     return new ResponseAdapter(category);
   }
-  
+
   @Get()
   @UseGuards(SessionGuard)
   @HttpCode(HttpStatus.OK)
@@ -73,14 +72,14 @@ export class CategoryController {
   @ApiResponse(DEFAULT_SWAGGER_RESPONSE)
   async getCategories(@UserInfo() userInfo: TUserDocument): Promise<ApiArrayCategoryResponseDto> {
     const result = await this.categoryService.getAllCategoriesByUserId(userInfo._id);
-    
+
     if (!result || !result.length) {
       throw ExceptionFactory.create({ moduleName: 'categories', code: 'NOT_FOUND_LIST' }, []);
     }
-    
+
     return new ResponseAdapter(result);
   }
-  
+
   @Post()
   @HttpCode(HttpStatus.CREATED)
   @UseGuards(SessionGuard)
@@ -93,17 +92,17 @@ export class CategoryController {
   @ApiResponse(DEFAULT_SWAGGER_RESPONSE)
   async createCategory(@Body() dto: CreateCategoryDto, @UserInfo() userInfo: TUserDocument) {
     const result = await this.categoryService.createCategory(dto, userInfo);
-    
+
     if (!result) {
       throw ExceptionFactory.create({ moduleName: 'categories', code: 'CATEGORY_ALREADY_EXISTS' }, null);
     }
-    
+
     return new ResponseAdapter(result, {
       type: EXCEPTION_TYPES.SUCCESS,
       message: CATEGORY_MESSAGES.SUCCESS_CREATED,
     });
   }
-  
+
   @Patch(':categoryId')
   @HttpCode(HttpStatus.OK)
   @UseGuards(SessionGuard)
@@ -129,17 +128,17 @@ export class CategoryController {
       new mongoose.Types.ObjectId(categoryId),
       userInfo._id,
     );
-    
+
     if (!result) {
       throw ExceptionFactory.create({ moduleName: 'categories', code: 'CATEGORY_ALREADY_EXISTS' }, null);
     }
-    
+
     return new ResponseAdapter(result, {
       type: EXCEPTION_TYPES.SUCCESS,
       message: CATEGORY_MESSAGES.SUCCESS_UPDATED,
     });
   }
-  
+
   @Delete(':categoryId')
   @UseGuards(SessionGuard)
   @HttpCode(HttpStatus.OK)
@@ -156,11 +155,11 @@ export class CategoryController {
   ): Promise<ApiCategoryResponseDto> {
     const categoryObjectId = new mongoose.Types.ObjectId(categoryId);
     const result: TCategoryDocument | null = await this.categoryService.removeCategory(categoryObjectId, userInfo);
-    
+
     if (!result) {
       throw ExceptionFactory.create({ moduleName: 'categories', code: 'NOT_REMOVED' }, null);
     }
-    
+
     return new ResponseAdapter(result, {
       type: EXCEPTION_TYPES.SUCCESS,
       message: CATEGORY_MESSAGES.SUCCESS_REMOVED,

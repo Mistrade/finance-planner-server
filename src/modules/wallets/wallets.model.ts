@@ -93,12 +93,10 @@ export class Wallet {
     name: 'allIncomeSum',
     required: true,
     default: 0,
-    minimum: 0,
     description: 'Сумма доходов за все время',
   })
   @Prop({
     type: Number,
-    min: 0,
     default: 0,
     required: true,
   })
@@ -109,12 +107,10 @@ export class Wallet {
     name: 'allConsumptionSum',
     required: true,
     default: 0,
-    minimum: 0,
     description: 'Сумма расходов за все время',
   })
   @Prop({
     type: Number,
-    min: 0,
     default: 0,
     required: true,
   })
@@ -135,6 +131,22 @@ export class Wallet {
     default: null,
   })
   lastOperationDate: Date | null;
+  
+  @ApiProperty({
+    type: String,
+    name: 'lastCalculateDate',
+    nullable: true,
+    required: true,
+    default: null,
+    example: new Date().toISOString(),
+    description: 'Дата последнего подсчета состояния баланса кошелька.',
+  })
+  @Prop({
+    type: Date,
+    nullable: true,
+    default: null,
+  })
+  lastCalculateDate: Date | null;
 
   @ApiProperty({
     type: String,

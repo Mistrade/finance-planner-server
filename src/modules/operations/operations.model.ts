@@ -309,3 +309,9 @@ export class Operation {
 }
 
 export const OperationSchema = SchemaFactory.createForClass(Operation);
+OperationSchema.index({ user: 1 });
+OperationSchema.index({ wallet: 1 });
+OperationSchema.index({ state: 1 });
+OperationSchema.index({ cost: 1 });
+OperationSchema.index({ date: 1 });
+OperationSchema.index({ user: 1, wallet: 1 });

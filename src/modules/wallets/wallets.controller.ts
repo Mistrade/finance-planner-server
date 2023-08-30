@@ -8,77 +8,39 @@ import {
   Param,
   Patch,
   Post,
-  UseGuards, UsePipes, ValidationPipe
-} from "@nestjs/common";
-import {
-  ApiCookieAuth, ApiCreatedResponse,
-  ApiHeader,
-  ApiOkResponse,
-  ApiOperation,
-  ApiResponse,
-  ApiTags
-} from "@nestjs/swagger";
+  UseGuards,
+  UsePipes,
+  ValidationPipe,
+} from '@nestjs/common';
+import { ApiCookieAuth, ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import mongoose from 'mongoose';
 import { ResponseAdapter } from '../../utils/adapters/response.adapter';
 import { ExceptionFactory } from '../../utils/exception/exception.factory';
+import { RejectException } from '../../utils/exception/reject.exception';
 import { SWAGGER_TAGS } from '../../utils/swagger/swagger.constants';
-import {
-  ApiHeaderTemplate,
-  DEFAULT_SWAGGER_RESPONSE,
-} from '../../utils/swagger/swagger.utils';
+import { DEFAULT_SWAGGER_RESPONSE } from '../../utils/swagger/swagger.utils';
 import { TUserDocument } from '../profile/db_models/user.model';
 import { COOKIE_NAMES } from '../session/session.constants';
 import { UserInfo } from '../session/session.decorators';
 import { SessionGuard } from '../session/session.guard';
+import { ApiArrayWalletsResponseDto, ApiWalletsResponseDto } from './dto/api.wallet.response-dto';
 import { CreateWalletDto } from './dto/create.wallet.dto';
-import {
-  ApiArrayWalletsResponseDto,
-  ApiWalletsResponseDto,
-} from './dto/api.wallet.response-dto';
+import { WalletCalculateService } from './services/wallet.calculate.service';
+import { WalletsService } from './services/wallets.service';
 import { TWalletsExceptionCodes } from './wallets.exception';
 import { TWalletDocument } from './wallets.model';
-import { WalletsService } from './wallets.service';
 
 @ApiTags(SWAGGER_TAGS.WALLETS)
 @Controller('wallets')
+@UseGuards(SessionGuard)
+@ApiCookieAuth(COOKIE_NAMES.ACCESS_TOKEN)
 export class WalletsController {
   constructor(
-    private walletsService: WalletsService
+    private readonly walletsService: WalletsService,
+    private readonly walletCalculateService: WalletCalculateService,
   ) {}
 
-  @Get('calculate')
-  @ApiCookieAuth(COOKIE_NAMES.ACCESS_TOKEN)
-  @UseGuards(SessionGuard)
-  @ApiTags(SWAGGER_TAGS.CALCULATE)
-  @ApiOperation({
-    summary:
-      'Принудительный пересчет всех кошельков, возвращает пересчитанный массив моделей кошельков',
-  })
-  @ApiOkResponse({
-    type: [ApiArrayWalletsResponseDto],
-    description: "Возвращает пересчитанный массив моделей",
-  })
-  @ApiResponse(DEFAULT_SWAGGER_RESPONSE)
-  async walletCalculateData() {}
-
-  @Get('calculate/:walletId')
-  @ApiCookieAuth(COOKIE_NAMES.ACCESS_TOKEN)
-  @UseGuards(SessionGuard)
-  @ApiTags(SWAGGER_TAGS.CALCULATE)
-  @ApiOperation({
-    summary:
-      'Принудительный пересчет данных по ID кошелька, возвращает пересчитанную модель кошелька',
-  })
-  @ApiOkResponse({
-    type: ApiWalletsResponseDto,
-    description: "Возвращает пересчитанный объект модели",
-  })
-  @ApiResponse(DEFAULT_SWAGGER_RESPONSE)
-  async walletCalculateDataById() {}
-
   @Get(':walletId')
-  @ApiCookieAuth(COOKIE_NAMES.ACCESS_TOKEN)
-  @UseGuards(SessionGuard)
   @ApiOperation({ summary: 'Получить кошелек по ID' })
   @ApiOkResponse({
     type: ApiWalletsResponseDto,
@@ -91,24 +53,16 @@ export class WalletsController {
     @Param('walletId') walletId: string,
   ): Promise<ApiWalletsResponseDto> {
     const walletObjectId = new mongoose.Types.ObjectId(walletId);
-    const result = await this.walletsService.findOneById(
-      userInfo._id,
-      walletObjectId,
-    );
+    const result = await this.walletsService.findOneById(userInfo._id, walletObjectId);
 
-    if (!result) {
-      throw ExceptionFactory.create(
-        { moduleName: 'wallets', code: 'NOT_FOUND' },
-        null,
-      );
+    if (result instanceof RejectException) {
+      throw result;
     }
 
     return new ResponseAdapter(result);
   }
 
   @Get()
-  @ApiCookieAuth(COOKIE_NAMES.ACCESS_TOKEN)
-  @UseGuards(SessionGuard)
   @ApiOperation({ summary: 'Получить все кошельки' })
   @ApiOkResponse({
     type: ApiArrayWalletsResponseDto,
@@ -116,17 +70,11 @@ export class WalletsController {
     status: HttpStatus.OK,
   })
   @ApiResponse(DEFAULT_SWAGGER_RESPONSE)
-  async getWallets(
-    @UserInfo() userInfo: TUserDocument,
-  ): Promise<ApiArrayWalletsResponseDto> {
-    const result: Array<TWalletDocument> =
-      await this.walletsService.findManyByUserId(userInfo._id);
+  async getWallets(@UserInfo() userInfo: TUserDocument): Promise<ApiArrayWalletsResponseDto> {
+    const result: Array<TWalletDocument> = await this.walletCalculateService.calculateWallets(userInfo._id);
 
     if (result.length === 0) {
-      throw ExceptionFactory.create(
-        { moduleName: 'wallets', code: 'NOT_FOUND' },
-        [],
-      );
+      throw ExceptionFactory.create({ moduleName: 'wallets', code: 'NOT_FOUND' }, []);
     }
 
     return new ResponseAdapter(result);
@@ -134,9 +82,7 @@ export class WalletsController {
 
   @Post()
   @UsePipes(new ValidationPipe())
-  @ApiCookieAuth(COOKIE_NAMES.ACCESS_TOKEN)
   @HttpCode(HttpStatus.CREATED)
-  @UseGuards(SessionGuard)
   @ApiOperation({ summary: 'Создать кошелек' })
   @ApiCreatedResponse({
     type: ApiWalletsResponseDto,
@@ -148,23 +94,17 @@ export class WalletsController {
     @Body() dto: CreateWalletDto,
     @UserInfo() userInfo: TUserDocument,
   ): Promise<ApiWalletsResponseDto> {
-    const result: TWalletDocument | TWalletsExceptionCodes =
-      await this.walletsService.createWallet(dto, userInfo);
+    const result: TWalletDocument | TWalletsExceptionCodes = await this.walletsService.createWallet(dto, userInfo);
 
     if (typeof result === 'string') {
-      throw ExceptionFactory.create(
-        { moduleName: 'wallets', code: result },
-        null,
-      );
+      throw ExceptionFactory.create({ moduleName: 'wallets', code: result }, null);
     }
 
     return new ResponseAdapter<TWalletDocument>(result);
   }
 
   @Post('createBaseWallets')
-  @ApiCookieAuth(COOKIE_NAMES.ACCESS_TOKEN)
   @HttpCode(HttpStatus.CREATED)
-  @UseGuards(SessionGuard)
   @ApiOperation({
     summary:
       'Создает в базе данных стартовый набор кошельков, если какой-то из них отсутствует и возвращает массив базовых кошельков в полном объеме',
@@ -175,26 +115,20 @@ export class WalletsController {
     status: HttpStatus.CREATED,
   })
   @ApiResponse(DEFAULT_SWAGGER_RESPONSE)
-  async createBaseWallets(
-    @UserInfo() userInfo: TUserDocument,
-  ): Promise<ApiArrayWalletsResponseDto> {
+  async createBaseWallets(@UserInfo() userInfo: TUserDocument): Promise<ApiArrayWalletsResponseDto> {
     const result = await this.walletsService.createBaseWallets(userInfo._id);
 
     if (!result.length) {
-      throw ExceptionFactory.create(
-        { moduleName: 'wallets', code: 'CANT_CREATE_BASE_WALLETS' },
-        [],
-      );
+      throw ExceptionFactory.create({ moduleName: 'wallets', code: 'CANT_CREATE_BASE_WALLETS' }, []);
     }
 
     return new ResponseAdapter<Array<TWalletDocument>>(result);
   }
 
+  @ApiTags(SWAGGER_TAGS.TODO)
   @Patch(':walletId')
   @UsePipes(new ValidationPipe())
-  @ApiCookieAuth(COOKIE_NAMES.ACCESS_TOKEN)
   @HttpCode(HttpStatus.OK)
-  @UseGuards(SessionGuard)
   @ApiOperation({ summary: 'Обновить кошелек' })
   @ApiOkResponse({
     type: ApiWalletsResponseDto,
@@ -202,19 +136,14 @@ export class WalletsController {
     status: HttpStatus.OK,
   })
   @ApiResponse(DEFAULT_SWAGGER_RESPONSE)
-  updateWallet(
-    @Body() dto: any,
-    @Param('walletId') walletId: string,
-    @UserInfo() userInfo: TUserDocument,
-  ) {
+  updateWallet(@Body() dto: any, @Param('walletId') walletId: string, @UserInfo() userInfo: TUserDocument) {
+    // TODO
     const walletObjectId = new mongoose.Types.ObjectId(walletId);
   }
 
   @Delete(':walletId')
-  @UseGuards(SessionGuard)
   @ApiOperation({ summary: 'Удалить кошелек' })
   @HttpCode(HttpStatus.OK)
-  @ApiCookieAuth(COOKIE_NAMES.ACCESS_TOKEN)
   @ApiOkResponse({
     type: ApiWalletsResponseDto,
     description: 'Модель удаленного кошелька',
@@ -226,14 +155,10 @@ export class WalletsController {
     @UserInfo() userInfo: TUserDocument,
   ): Promise<ApiWalletsResponseDto> {
     const walletObjectId = new mongoose.Types.ObjectId(walletId);
-    const result: TWalletDocument | null =
-      await this.walletsService.removeWalletById(walletObjectId, userInfo._id);
+    const result: TWalletDocument | null = await this.walletsService.removeWalletById(walletObjectId, userInfo._id);
 
     if (!result) {
-      throw ExceptionFactory.create(
-        { moduleName: 'wallets', code: 'NOT_FOUND' },
-        null,
-      );
+      throw ExceptionFactory.create({ moduleName: 'wallets', code: 'NOT_FOUND' }, null);
     }
 
     return new ResponseAdapter(result);

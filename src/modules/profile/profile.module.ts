@@ -3,9 +3,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { User, UserSchema } from './db_models/user.model';
 import { ProfileService } from './profile.service';
 
-const dbModule = MongooseModule.forFeature([
-  { name: User.name, schema: UserSchema },
-]);
+const dbModule = MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]);
 
 @Global()
 @Module({
