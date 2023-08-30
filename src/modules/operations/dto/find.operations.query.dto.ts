@@ -1,9 +1,33 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsOptional, IsString } from 'class-validator';
+import { IsNumber, IsNumberString, IsOptional, IsString } from "class-validator";
 import mongoose from 'mongoose';
 import { OPERATION_STATE, OPERATION_TYPES } from '../operations.constants';
 
 export class FindOperationsQueryDto {
+  @ApiProperty({
+    name: "skip",
+    required: false,
+    default: 0,
+    type: Number,
+    example: 100,
+    description: "Сколько документов пропустить"
+  })
+  @IsNumberString()
+  @IsOptional()
+  skip?: number;
+  
+  @ApiProperty({
+    name: 'limit',
+    required: false,
+    default: 100,
+    type: Number,
+    example: 100,
+    description: 'Максимальное количество возвращаемых документов'
+  })
+  @IsNumberString()
+  @IsOptional()
+  limit?: number;
+  
   @ApiProperty({
     name: 'fromDate',
     required: false,
