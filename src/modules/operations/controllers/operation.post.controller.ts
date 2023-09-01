@@ -3,7 +3,7 @@ import { ApiCookieAuth, ApiOkResponse, ApiOperation, ApiTags } from "@nestjs/swa
 import { ResponseAdapter } from "../../../utils/adapters/response.adapter";
 import { CONTROLLER_PATHS } from "../../../utils/global.constants";
 import { SWAGGER_TAGS } from "../../../utils/swagger/swagger.constants";
-import { TUserDocument, User } from "../../profile/db_models/user.model";
+import { TProfileDocument, Profile } from "../../profile/profile.model";
 import { COOKIE_NAMES } from "../../session/session.constants";
 import { UserInfo } from "../../session/session.decorators";
 import { SessionGuard } from "../../session/session.guard";
@@ -31,7 +31,7 @@ export class OperationPostController {
   })
   async createOperation(
     @Body() dto: CreateOperationDto,
-    @UserInfo() userInfo: TUserDocument,
+    @UserInfo() userInfo: TProfileDocument,
   ): Promise<ApiOperationResponseDto> {
     const result = await this.operationsCreateService.createOperation(dto, userInfo);
     
@@ -40,7 +40,7 @@ export class OperationPostController {
   
   @Post('many')
   @ApiOperation({ summary: '123' })
-  async createMany(@UserInfo() user: User) {
+  async createMany(@UserInfo() user: Profile) {
     return this.operationsCreateService.createMany(user);
   }
 }

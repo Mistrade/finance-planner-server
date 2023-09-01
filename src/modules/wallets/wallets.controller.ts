@@ -19,10 +19,11 @@ import { ExceptionFactory } from '../../utils/exception/exception.factory';
 import { RejectException } from '../../utils/exception/reject.exception';
 import { SWAGGER_TAGS } from '../../utils/swagger/swagger.constants';
 import { DEFAULT_SWAGGER_RESPONSE } from '../../utils/swagger/swagger.utils';
-import { TUserDocument } from '../profile/db_models/user.model';
+import { TProfileDocument } from '../profile/profile.model';
 import { COOKIE_NAMES } from '../session/session.constants';
-import { UserInfo } from '../session/session.decorators';
+import { UserSession, UserInfo } from "../session/session.decorators";
 import { SessionGuard } from '../session/session.guard';
+import { ISessionData } from "../session/utils/session.data";
 import { ApiArrayWalletsResponseDto, ApiWalletsResponseDto } from './dto/api.wallet.response-dto';
 import { CreateWalletDto } from './dto/create.wallet.dto';
 import { WalletCalculateService } from './services/wallet.calculate.service';
@@ -49,7 +50,7 @@ export class WalletsController {
   })
   @ApiResponse(DEFAULT_SWAGGER_RESPONSE)
   async getWalletById(
-    @UserInfo() userInfo: TUserDocument,
+    @UserInfo() userInfo: TProfileDocument,
     @Param('walletId') walletId: string,
   ): Promise<ApiWalletsResponseDto> {
     const walletObjectId = new mongoose.Types.ObjectId(walletId);
@@ -70,9 +71,12 @@ export class WalletsController {
     status: HttpStatus.OK,
   })
   @ApiResponse(DEFAULT_SWAGGER_RESPONSE)
-  async getWallets(@UserInfo() userInfo: TUserDocument): Promise<ApiArrayWalletsResponseDto> {
+  async getWallets(
+    @UserInfo() userInfo: TProfileDocument,
+    @UserSession() session: ISessionData,
+  ): Promise<ApiArrayWalletsResponseDto> {
     const result: Array<TWalletDocument> = await this.walletCalculateService.calculateWallets(userInfo._id);
-
+    
     if (result.length === 0) {
       throw ExceptionFactory.create({ moduleName: 'wallets', code: 'NOT_FOUND' }, []);
     }
@@ -92,7 +96,7 @@ export class WalletsController {
   @ApiResponse(DEFAULT_SWAGGER_RESPONSE)
   async createWallet(
     @Body() dto: CreateWalletDto,
-    @UserInfo() userInfo: TUserDocument,
+    @UserInfo() userInfo: TProfileDocument,
   ): Promise<ApiWalletsResponseDto> {
     const result: TWalletDocument | TWalletsExceptionCodes = await this.walletsService.createWallet(dto, userInfo);
 
@@ -115,7 +119,7 @@ export class WalletsController {
     status: HttpStatus.CREATED,
   })
   @ApiResponse(DEFAULT_SWAGGER_RESPONSE)
-  async createBaseWallets(@UserInfo() userInfo: TUserDocument): Promise<ApiArrayWalletsResponseDto> {
+  async createBaseWallets(@UserInfo() userInfo: TProfileDocument): Promise<ApiArrayWalletsResponseDto> {
     const result = await this.walletsService.createBaseWallets(userInfo._id);
 
     if (!result.length) {
@@ -136,7 +140,7 @@ export class WalletsController {
     status: HttpStatus.OK,
   })
   @ApiResponse(DEFAULT_SWAGGER_RESPONSE)
-  updateWallet(@Body() dto: any, @Param('walletId') walletId: string, @UserInfo() userInfo: TUserDocument) {
+  updateWallet(@Body() dto: any, @Param('walletId') walletId: string, @UserInfo() userInfo: TProfileDocument) {
     // TODO
     const walletObjectId = new mongoose.Types.ObjectId(walletId);
   }
@@ -152,7 +156,7 @@ export class WalletsController {
   @ApiResponse(DEFAULT_SWAGGER_RESPONSE)
   async removeWallet(
     @Param('walletId') walletId: string,
-    @UserInfo() userInfo: TUserDocument,
+    @UserInfo() userInfo: TProfileDocument,
   ): Promise<ApiWalletsResponseDto> {
     const walletObjectId = new mongoose.Types.ObjectId(walletId);
     const result: TWalletDocument | null = await this.walletsService.removeWalletById(walletObjectId, userInfo._id);

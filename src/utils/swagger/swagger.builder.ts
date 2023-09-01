@@ -1,5 +1,6 @@
 import { INestApplication } from '@nestjs/common';
 import { DocumentBuilder, OpenAPIObject, SwaggerModule } from '@nestjs/swagger';
+import dayjs from 'dayjs';
 
 export class SwaggerBuilder {
   app: INestApplication<any>;
@@ -18,6 +19,18 @@ export class SwaggerBuilder {
   }
 
   private createConfig() {
-    return new DocumentBuilder().setTitle('Сервис').setDescription('Описание сервиса').setVersion('1.0').build();
+    return new DocumentBuilder()
+      .addGlobalParameters({
+        name: 'timezone',
+        example: dayjs.tz.guess(),
+        in: 'header',
+        required: false,
+        description:
+          'Используется для корректного поиска по датам, в соответствии с часовым поясом пользователя. По умолчанию, если не передать, используется UTC.',
+      })
+      .setTitle('Сервис')
+      .setDescription('Описание сервиса')
+      .setVersion('1.0')
+      .build();
   }
 }

@@ -3,7 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import dayjs, { Dayjs } from 'dayjs';
 import mongoose from 'mongoose';
 import { CategoryService } from '../../category/category.service';
-import { TUserDocument, User } from '../../profile/db_models/user.model';
+import { TProfileDocument, Profile } from '../../profile/profile.model';
 import { SubscribeService } from '../../subscribe/subscribe.service';
 import { TagsService } from '../../tags/tags.service';
 import { TargetsService } from '../../targets/targets.service';
@@ -30,7 +30,7 @@ export class OperationsCreateService {
   ) {
   }
   
-  async createMany(user: User) {
+  async createMany(user: Profile) {
     const wallets = await this.walletService.findManyByUserId(user._id);
     
     const typesArr = Object.values(OPERATION_TYPES);
@@ -63,7 +63,7 @@ export class OperationsCreateService {
     return [];
   }
   
-  async createOperation(dto: CreateOperationDto, userInfo: TUserDocument): Promise<Operation | null> {
+  async createOperation(dto: CreateOperationDto, userInfo: TProfileDocument): Promise<Operation | null> {
     const {
       title,
       wallet,

@@ -22,7 +22,12 @@ export enum SESSION_MESSAGES {
   USER_NOT_FOUND_SESSION = 'Сессия пользователя не найдена',
   USER_CANT_CHECK_SESSION = 'Не удалось проверить сессию пользователя',
 
-  REG_CANT_CREATE_BASE_WALLETS = `Пользователь успешно зарегистрирован, но создать стартовый набор кошельков не удалось.`
+  REG_CANT_CREATE_BASE_WALLETS = `Пользователь успешно зарегистрирован, но создать стартовый набор кошельков не удалось.`,
+  ACCOUNT_HACKING_ATTEMPT = `Произошла попытка взлома аккаунта, пожалуйста поменяйте пароль.`
+}
+
+export enum CUSTOM_SESSION_STATUS_CODES {
+  ACCOUNT_HACKING_ATTEMPT = 1000,
 }
 
 export enum COOKIE_NAMES {

@@ -1,7 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty } from '@nestjs/swagger';
 import mongoose, { HydratedDocument, Model, SchemaTypes, Types } from 'mongoose';
-import { User } from '../profile/db_models/user.model';
+import { Profile } from '../profile/profile.model';
 import { WALLET_CREATOR, WALLET_NAME_MAX_LENGTH, WALLET_NAME_MIN_LENGTH, WALLET_TYPE } from './wallets.constants';
 
 export type TWalletDocument = HydratedDocument<Wallet, { createdAt: Date; updatedAt: Date }>;
@@ -35,7 +35,7 @@ export class Wallet {
     required: true,
     default: new mongoose.Types.ObjectId(123),
   })
-  @Prop({ type: SchemaTypes.ObjectId, required: true, ref: User.name })
+  @Prop({ type: SchemaTypes.ObjectId, required: true, ref: Profile.name })
   user: Types.ObjectId;
 
   @ApiProperty({

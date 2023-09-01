@@ -7,7 +7,7 @@ import { RejectException } from '../../../utils/exception/reject.exception';
 import { CONTROLLER_PATHS } from "../../../utils/global.constants";
 import { SWAGGER_TAGS } from '../../../utils/swagger/swagger.constants';
 import { DEFAULT_SWAGGER_RESPONSE } from '../../../utils/swagger/swagger.utils';
-import { User } from '../../profile/db_models/user.model';
+import { Profile } from '../../profile/profile.model';
 import { COOKIE_NAMES } from '../../session/session.constants';
 import { UserInfo } from '../../session/session.decorators';
 import { SessionGuard } from '../../session/session.guard';
@@ -33,7 +33,7 @@ export class OperationDeleteController {
   @ApiParam({ name: 'walletId', description: 'Идентификатор кошелька, операции которого будут удалены.' })
   @ApiOkResponse({ type: ResponseAdapter, description: 'Удаление выполнено успешно' })
   @ApiResponse(DEFAULT_SWAGGER_RESPONSE)
-  async removeByWalletId(@Param('walletId') walletId: string, @UserInfo() user: User) {
+  async removeByWalletId(@Param('walletId') walletId: string, @UserInfo() user: Profile) {
     const result = await this.removeService.removeAllByWalletId(new mongoose.Types.ObjectId(walletId), user._id);
 
     if (result instanceof RejectException) {
@@ -56,7 +56,7 @@ export class OperationDeleteController {
     description: 'Удаление операции выполнено успешно. Возвращается удаленная операция.',
   })
   @ApiResponse(DEFAULT_SWAGGER_RESPONSE)
-  async removeById(@Param('operationId') id: string, @UserInfo() user: User): Promise<ApiOperationResponseDto> {
+  async removeById(@Param('operationId') id: string, @UserInfo() user: Profile): Promise<ApiOperationResponseDto> {
     const result = await this.removeService.removeById(new mongoose.Types.ObjectId(id), user._id);
 
     if (result instanceof RejectException) {
@@ -75,7 +75,7 @@ export class OperationDeleteController {
   @ApiOperation({ summary: 'Удаление всех операций пользователя' })
   @ApiOkResponse({ type: ResponseAdapter, description: 'Удаление всех операций выполнено успешно.' })
   @ApiResponse(DEFAULT_SWAGGER_RESPONSE)
-  async removeAll(@UserInfo() user: User): Promise<ResponseAdapter> {
+  async removeAll(@UserInfo() user: Profile): Promise<ResponseAdapter> {
     const result = await this.removeService.removeAllByUserId(user._id);
 
     if (result instanceof RejectException) {

@@ -15,7 +15,7 @@ import { ResponseAdapter } from '../../../utils/adapters/response.adapter';
 import { ExceptionFactory } from '../../../utils/exception/exception.factory';
 import { CONTROLLER_PATHS } from '../../../utils/global.constants';
 import { SWAGGER_TAGS } from '../../../utils/swagger/swagger.constants';
-import { TUserDocument, User } from '../../profile/db_models/user.model';
+import { TProfileDocument, Profile } from '../../profile/profile.model';
 import { COOKIE_NAMES } from '../../session/session.constants';
 import { UserInfo } from '../../session/session.decorators';
 import { SessionGuard } from '../../session/session.guard';
@@ -47,7 +47,7 @@ export class OperationGetController {
     type: ApiSchemaOperationsDto,
   })
   async getOperationsSchema(
-    @UserInfo() userInfo: User,
+    @UserInfo() userInfo: Profile,
     @Query() query: FindOperationsQueryDto,
   ): Promise<ApiSchemaOperationsDto> {
     const result: Array<Operation> = await this.operationsFindService.findByFilters(query, userInfo, {
@@ -69,7 +69,7 @@ export class OperationGetController {
   @HttpCode(HttpStatus.OK)
   async getOperationById(
     @Param('operationId') id: string,
-    @UserInfo() userInfo: TUserDocument,
+    @UserInfo() userInfo: TProfileDocument,
   ): Promise<ApiOperationResponseDto> {
     const result = await this.operationsFindService.findById(new mongoose.Types.ObjectId(id), userInfo._id, {
       lean: true,
@@ -86,7 +86,7 @@ export class OperationGetController {
   @UsePipes(new ValidationPipe())
   @ApiOperation({ summary: 'Получить список операций по фильтрам' })
   @HttpCode(HttpStatus.OK)
-  async getOperations(@UserInfo() userInfo: User, @Query() queryParams: FindOperationsQueryDto) {
+  async getOperations(@UserInfo() userInfo: Profile, @Query() queryParams: FindOperationsQueryDto) {
     const result = await this.operationsFindService.findByFilters(queryParams, userInfo, {
       lean: true,
       projection: { repeat: 0, repeatSource: 0, repeatPattern: 0, endRepeatDate: 0 },

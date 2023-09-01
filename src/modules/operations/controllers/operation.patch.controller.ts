@@ -16,7 +16,7 @@ import { ExceptionFactory } from "../../../utils/exception/exception.factory";
 import { RejectException } from "../../../utils/exception/reject.exception";
 import { CONTROLLER_PATHS } from "../../../utils/global.constants";
 import { SWAGGER_TAGS } from "../../../utils/swagger/swagger.constants";
-import { User } from "../../profile/db_models/user.model";
+import { Profile } from "../../profile/profile.model";
 import { COOKIE_NAMES } from "../../session/session.constants";
 import { UserInfo } from "../../session/session.decorators";
 import { SessionGuard } from "../../session/session.guard";
@@ -115,7 +115,7 @@ export class OperationPatchController {
   async updateOperation(
     @Param('operationId') id: string,
     @Param('operationFieldName') field: keyof UpdateOperationDto,
-    @UserInfo() user: User,
+    @UserInfo() user: Profile,
     @Body() dto: UpdateOperationDto,
   ) {
     const result = await this.updateService.updateOneById(new mongoose.Types.ObjectId(id), field, dto, user);

@@ -1,7 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty } from '@nestjs/swagger';
 import mongoose, { HydratedDocument, Model, SchemaTypes, Types } from 'mongoose';
-import { User } from '../profile/db_models/user.model';
+import { Profile } from '../profile/profile.model';
 import { CATEGORY_NAME_MAX_LENGTH, CATEGORY_NAME_MIN_LENGTH } from './category.constants';
 
 export type TCategoryDocument = HydratedDocument<Category>;
@@ -35,7 +35,7 @@ export class Category {
     required: true,
     default: new mongoose.Types.ObjectId(123),
   })
-  @Prop({ type: SchemaTypes.ObjectId, ref: User.name, required: true })
+  @Prop({ type: SchemaTypes.ObjectId, ref: Profile.name, required: true })
   user: Types.ObjectId;
 
   @ApiProperty({

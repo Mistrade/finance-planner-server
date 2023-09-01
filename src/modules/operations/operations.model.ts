@@ -3,7 +3,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import dayjs from 'dayjs';
 import mongoose, { HydratedDocument, Model, SchemaTypes, Types } from 'mongoose';
 import { Category } from '../category/category.model';
-import { User } from '../profile/db_models/user.model';
+import { Profile } from '../profile/profile.model';
 import { Tag } from '../tags/tags.model';
 import { Target } from '../targets/targets.model';
 import { Wallet } from '../wallets/wallets.model';
@@ -55,7 +55,7 @@ export class Operation {
   @Prop({
     type: SchemaTypes.ObjectId,
     required: [true, OPERATION_MODEL_MESSAGES.USER_IS_REQUIRED],
-    ref: User.name,
+    ref: Profile.name,
     validate: {
       validator: function (value: Types.ObjectId | string) {
         return mongoose.Types.ObjectId.isValid(value);
