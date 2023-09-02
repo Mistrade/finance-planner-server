@@ -6,7 +6,7 @@ import { OPERATION_STATE, OPERATION_TYPES } from '../../operations/operations.co
 import { Operation, TOperationDocument } from '../../operations/operations.model';
 import { IAggregateOperationsBalance } from '../../operations/operations.types';
 import { OperationsFindService } from '../../operations/services/operations.find.service';
-import { TUserDocument } from '../../profile/db_models/user.model';
+import { TProfileDocument } from '../../profile/profile.model';
 import { TWalletDocument, TWalletModel, Wallet } from '../wallets.model';
 
 type TWalletAggregateHash = Record<string, Array<IAggregateOperationsBalance>>;
@@ -384,7 +384,7 @@ export class WalletCalculateService {
     return wallet.save({ validateModifiedOnly: true });
   }
 
-  async calculateNewOperation(operation: TOperationDocument, userInfo: TUserDocument): Promise<TWalletDocument | null> {
+  async calculateNewOperation(operation: TOperationDocument, userInfo: TProfileDocument): Promise<TWalletDocument | null> {
     return this.calculateAndSaveWallet(
       this.getWalletCalculateField(operation),
       this.getChangedOperationValue(operation),

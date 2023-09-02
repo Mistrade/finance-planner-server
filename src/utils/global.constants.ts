@@ -8,5 +8,6 @@ export enum REDIS_NAMESPACES {
 }
 
 export enum CONTROLLER_PATHS {
-  OPERATIONS = 'operations'
+  OPERATIONS = 'operations',
+  META = 'meta'
 }

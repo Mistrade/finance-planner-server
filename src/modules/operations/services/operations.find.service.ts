@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import dayjs, { Dayjs } from 'dayjs';
 import mongoose, { AnyObject, QueryOptions, Types } from 'mongoose';
-import { User } from '../../profile/db_models/user.model';
+import { Profile } from '../../profile/profile.model';
 import { FindOperationsQueryDto } from '../dto/find.operations.query.dto';
 import { OPERATION_STATE, OPERATION_TYPES } from '../operations.constants';
 import { Operation, TOperationDocument, TOperationModel } from '../operations.model';
@@ -64,7 +64,7 @@ export class OperationsFindService {
   
   async findByFilters<T = Operation>(
     filtersDto: FindOperationsQueryDto,
-    userInfo: User,
+    userInfo: Profile,
     options?: QueryOptions<TOperationDocument>,
   ): Promise<Array<T>> {
     return this.operationModel.find(this.buildFilters(filtersDto, userInfo), undefined, {
@@ -75,7 +75,7 @@ export class OperationsFindService {
     });
   }
   
-  private buildFilters(filters: FindOperationsQueryDto, userInfo?: User): Partial<Record<keyof Operation, any>> {
+  private buildFilters(filters: FindOperationsQueryDto, userInfo?: Profile): Partial<Record<keyof Operation, any>> {
     const {
       title,
       target,

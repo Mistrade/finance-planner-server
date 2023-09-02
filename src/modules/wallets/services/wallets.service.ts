@@ -6,7 +6,7 @@ import mongoose, { Types } from 'mongoose';
 import { ExceptionFactory } from '../../../utils/exception/exception.factory';
 import { RejectException } from '../../../utils/exception/reject.exception';
 import { REDIS_NAMESPACES } from '../../../utils/global.constants';
-import { TUserDocument } from '../../profile/db_models/user.model';
+import { TProfileDocument } from '../../profile/profile.model';
 import { CreateWalletDto } from '../dto/create.wallet.dto';
 import { WALLET_CREATOR, WALLET_TYPE } from '../wallets.constants';
 import { TWalletsExceptionCodes } from '../wallets.exception';
@@ -107,7 +107,7 @@ export class WalletsService {
     return result;
   }
   
-  async createWallet(dto: CreateWalletDto, userInfo: TUserDocument): Promise<TWalletDocument | TWalletsExceptionCodes> {
+  async createWallet(dto: CreateWalletDto, userInfo: TProfileDocument): Promise<TWalletDocument | TWalletsExceptionCodes> {
     const doc: TWalletDocument | null = await new this.walletModel({
       ...dto,
       user: userInfo._id,

@@ -1,7 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty } from '@nestjs/swagger';
 import mongoose, { HydratedDocument, Model, SchemaTypes, Types } from 'mongoose';
-import { User } from '../profile/db_models/user.model';
+import { Profile } from '../profile/profile.model';
 import { TAG_TITLE_MAX_LENGTH, TAG_TITLE_MIN_LENGTH } from './tags.constants';
 
 export type TTagDocument = HydratedDocument<Tag>;
@@ -34,7 +34,7 @@ export class Tag {
     type: String,
     default: new mongoose.Types.ObjectId(123),
   })
-  @Prop({ type: SchemaTypes.ObjectId, ref: User.name, required: true })
+  @Prop({ type: SchemaTypes.ObjectId, ref: Profile.name, required: true })
   user: Types.ObjectId;
   
   @ApiProperty({

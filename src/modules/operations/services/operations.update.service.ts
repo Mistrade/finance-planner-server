@@ -6,7 +6,7 @@ import { exhaustiveCheck } from '../../../utils/exception.data';
 import { ExceptionFactory } from '../../../utils/exception/exception.factory';
 import { RejectException } from '../../../utils/exception/reject.exception';
 import { CategoryService } from '../../category/category.service';
-import { User } from '../../profile/db_models/user.model';
+import { Profile } from '../../profile/profile.model';
 import { ResolveService } from '../../resolve/resolve.service';
 import { TagsService } from '../../tags/tags.service';
 import { WalletCalculateService } from '../../wallets/services/wallet.calculate.service';
@@ -29,7 +29,7 @@ export class OperationsUpdateService {
     id: Types.ObjectId,
     field: keyof UpdateOperationDto,
     dto: UpdateOperationDto,
-    userInfo: User,
+    userInfo: Profile,
   ): Promise<Operation | null | RejectException<Operation>> {
     switch (field) {
       case 'title':

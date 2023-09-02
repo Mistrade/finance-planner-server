@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Types } from 'mongoose';
-import { TUserDocument } from '../profile/db_models/user.model';
+import { TProfileDocument } from '../profile/profile.model';
 import { ResolveService } from '../resolve/resolve.service';
 import { Category, TCategoryDocument, TCategoryModel } from './category.model';
 import { CreateCategoryDto } from './dto/create.category.dto';
@@ -78,7 +78,7 @@ export class CategoryService {
     return [...createdCategories, ...alreadyExists];
   }
 
-  async createCategory(data: CreateCategoryDto, userInfo: TUserDocument): Promise<TCategoryDocument | null> {
+  async createCategory(data: CreateCategoryDto, userInfo: TProfileDocument): Promise<TCategoryDocument | null> {
     const prev: TCategoryDocument | null = await this.findCategoryByName(data.name, userInfo._id);
 
     if (prev?._id) {
@@ -91,7 +91,7 @@ export class CategoryService {
     }).save();
   }
 
-  async removeCategory(categoryId: Types.ObjectId, userInfo: TUserDocument): Promise<TCategoryDocument | null> {
+  async removeCategory(categoryId: Types.ObjectId, userInfo: TProfileDocument): Promise<TCategoryDocument | null> {
     const removeResult = await this.categoryModel.findOneAndRemove({
       user: userInfo._id,
       _id: categoryId._id,

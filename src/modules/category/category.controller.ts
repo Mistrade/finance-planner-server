@@ -15,7 +15,7 @@ import { EXCEPTION_TYPES } from '../../utils/exception.data';
 import { ExceptionFactory } from '../../utils/exception/exception.factory';
 import { SWAGGER_TAGS } from '../../utils/swagger/swagger.constants';
 import { DEFAULT_SWAGGER_RESPONSE } from '../../utils/swagger/swagger.utils';
-import { TUserDocument } from '../profile/db_models/user.model';
+import { TProfileDocument } from '../profile/profile.model';
 import { COOKIE_NAMES } from '../session/session.constants';
 import { UserInfo } from '../session/session.decorators';
 import { SessionGuard } from '../session/session.guard';
@@ -48,7 +48,7 @@ export class CategoryController {
   @ApiResponse(DEFAULT_SWAGGER_RESPONSE)
   async getCategoryById(
     @Param('categoryId') categoryId: string,
-    @UserInfo() userInfo: TUserDocument,
+    @UserInfo() userInfo: TProfileDocument,
   ): Promise<ApiCategoryResponseDto> {
     const objectId = new mongoose.Types.ObjectId(categoryId);
     const category: TCategoryDocument | null = await this.categoryService.findCategoryById(objectId, userInfo._id);
@@ -70,7 +70,7 @@ export class CategoryController {
     type: ApiArrayCategoryResponseDto,
   })
   @ApiResponse(DEFAULT_SWAGGER_RESPONSE)
-  async getCategories(@UserInfo() userInfo: TUserDocument): Promise<ApiArrayCategoryResponseDto> {
+  async getCategories(@UserInfo() userInfo: TProfileDocument): Promise<ApiArrayCategoryResponseDto> {
     const result = await this.categoryService.getAllCategoriesByUserId(userInfo._id);
 
     if (!result || !result.length) {
@@ -90,7 +90,7 @@ export class CategoryController {
     type: ApiCategoryResponseDto,
   })
   @ApiResponse(DEFAULT_SWAGGER_RESPONSE)
-  async createCategory(@Body() dto: CreateCategoryDto, @UserInfo() userInfo: TUserDocument) {
+  async createCategory(@Body() dto: CreateCategoryDto, @UserInfo() userInfo: TProfileDocument) {
     const result = await this.categoryService.createCategory(dto, userInfo);
 
     if (!result) {
@@ -121,7 +121,7 @@ export class CategoryController {
   async updateCategoryById(
     @Body() dto: CreateCategoryDto,
     @Param('categoryId') categoryId: string,
-    @UserInfo() userInfo: TUserDocument,
+    @UserInfo() userInfo: TProfileDocument,
   ): Promise<ApiCategoryResponseDto> {
     const result: TCategoryDocument | null = await this.categoryService.updateCategoryData(
       dto,
@@ -151,7 +151,7 @@ export class CategoryController {
   @ApiResponse(DEFAULT_SWAGGER_RESPONSE)
   async removeCategory(
     @Param('categoryId') categoryId: string,
-    @UserInfo() userInfo: TUserDocument,
+    @UserInfo() userInfo: TProfileDocument,
   ): Promise<ApiCategoryResponseDto> {
     const categoryObjectId = new mongoose.Types.ObjectId(categoryId);
     const result: TCategoryDocument | null = await this.categoryService.removeCategory(categoryObjectId, userInfo);

@@ -27,7 +27,7 @@ import { EXCEPTION_TYPES } from '../../utils/exception.data';
 import { ExceptionFactory } from '../../utils/exception/exception.factory';
 import { SWAGGER_TAGS } from '../../utils/swagger/swagger.constants';
 import { DEFAULT_SWAGGER_RESPONSE } from '../../utils/swagger/swagger.utils';
-import { TUserDocument } from '../profile/db_models/user.model';
+import { TProfileDocument } from '../profile/profile.model';
 import { COOKIE_NAMES } from '../session/session.constants';
 import { UserInfo } from '../session/session.decorators';
 import { SessionGuard } from '../session/session.guard';
@@ -58,7 +58,7 @@ export class TagsController {
     type: ApiTagResponseDto,
   })
   @ApiResponse(DEFAULT_SWAGGER_RESPONSE)
-  async getTagById(@Param('tagId') tagId: string, @UserInfo() userInfo: TUserDocument): Promise<ApiTagResponseDto> {
+  async getTagById(@Param('tagId') tagId: string, @UserInfo() userInfo: TProfileDocument): Promise<ApiTagResponseDto> {
     const tagObjectId = new mongoose.Types.ObjectId(tagId);
     const result: TTagDocument | null = await this.tagService.findTagById(tagObjectId, userInfo._id);
 
@@ -79,7 +79,7 @@ export class TagsController {
     type: ApiArrayTagResponseDto,
   })
   @ApiResponse(DEFAULT_SWAGGER_RESPONSE)
-  async getTags(@UserInfo() userInfo: TUserDocument): Promise<ApiArrayTagResponseDto> {
+  async getTags(@UserInfo() userInfo: TProfileDocument): Promise<ApiArrayTagResponseDto> {
     const result: Array<TTagDocument> = await this.tagService.findTagsByUserId(userInfo._id);
 
     if (result.length === 0) {
@@ -100,7 +100,7 @@ export class TagsController {
     type: ApiTagResponseDto,
   })
   @ApiResponse(DEFAULT_SWAGGER_RESPONSE)
-  async createTag(@Body() dto: CreateTagDto, @UserInfo() userInfo: TUserDocument): Promise<ApiTagResponseDto> {
+  async createTag(@Body() dto: CreateTagDto, @UserInfo() userInfo: TProfileDocument): Promise<ApiTagResponseDto> {
     const result: TTagDocument | null = await this.tagService.createTag(dto, userInfo.id);
 
     if (!result) {
@@ -126,7 +126,7 @@ export class TagsController {
   @ApiResponse(DEFAULT_SWAGGER_RESPONSE)
   async updateTag(
     @Body() dto: CreateTagDto,
-    @UserInfo() userInfo: TUserDocument,
+    @UserInfo() userInfo: TProfileDocument,
     @Param('tagId') tagId: string,
   ): Promise<ApiTagResponseDto> {
     const tagObjectId = new mongoose.Types.ObjectId(tagId);
@@ -160,7 +160,7 @@ export class TagsController {
     type: ApiTagResponseDto,
   })
   @ApiResponse(DEFAULT_SWAGGER_RESPONSE)
-  async removeTag(@Param('tagId') tagId: string, @UserInfo() userInfo: TUserDocument): Promise<ApiTagResponseDto> {
+  async removeTag(@Param('tagId') tagId: string, @UserInfo() userInfo: TProfileDocument): Promise<ApiTagResponseDto> {
     const tagObjectId = new mongoose.Types.ObjectId(tagId);
     const result: TTagDocument | null = await this.tagService.removeTag(tagObjectId, userInfo._id);
 

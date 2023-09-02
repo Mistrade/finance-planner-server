@@ -6,6 +6,7 @@ import { AllExceptionFilter } from './utils/exception/filter.exception';
 import { SwaggerBuilder } from './utils/swagger/swagger.builder';
 
 async function bootstrap() {
+  setupDayjsPlugins();
   const app = await NestFactory.create(AppModule);
   app.setGlobalPrefix('api');
   app.use(cookieParser());
@@ -16,7 +17,7 @@ async function bootstrap() {
   const swagger = new SwaggerBuilder(app);
 
   await app.listen(3000, () => {
-    setupDayjsPlugins();
+  
   });
 }
 
