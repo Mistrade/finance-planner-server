@@ -36,7 +36,7 @@ import { TProfileExceptionCodes } from '../profile/profile.exception';
 import { Profile, TProfileDocument } from '../profile/profile.model';
 import { WalletsService } from '../wallets/services/wallets.service';
 import { SessionDataAdapterDto, SessionDataResponseDto } from './dto/session.data.adapter.dto';
-import { SessionDto } from './dto/session.dto';
+import { CreateSessionDto, SessionDto } from "./dto/session.dto";
 import { COOKIE_NAMES, SESSION_MESSAGES } from './session.constants';
 import { GetCookies, UserSession } from './session.decorators';
 import { SessionGuard } from './session.guard';
@@ -90,7 +90,7 @@ export class SessionController {
   })
   @ApiResponse(DEFAULT_SWAGGER_RESPONSE)
   async login(
-    @Body() dto: SessionDto,
+    @Body() dto: CreateSessionDto,
     @Res() res: Response<CustomResponse<Profile>>,
     @Req() req: Request,
   ): Promise<Response<ApiUserResponseDto>> {

@@ -44,3 +44,12 @@ export class SessionDto {
   })
   password: string;
 }
+
+
+export class CreateSessionDto extends SessionDto {
+  @ApiProperty({
+    type: Boolean,
+    description: "Если передано true, то сессия будет жить дольше, чем если передан false."
+  })
+  saveThisDevice?: boolean;
+}
