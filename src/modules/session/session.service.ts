@@ -17,11 +17,12 @@ import { Timezone } from '../meta/models/timezone.model';
 import { TProfileExceptionCodes } from '../profile/profile.exception';
 import { Profile, TProfileDocument } from '../profile/profile.model';
 import { ProfileService } from '../profile/profile.service';
-import { SessionDto } from './dto/session.dto';
+import { CreateSessionDto, SessionDto } from "./dto/session.dto";
 import { COOKIE_NAMES } from './session.constants';
 import { generateSessionRedisToken } from './session.utils';
 import { IAuthJwtPayload, SignInServiceMethodReturned } from './types/session.types';
 import { ISessionData } from './utils/session.data';
+import { getSessionDataTTL } from './utils/utils';
 
 @Injectable()
 export class SessionService {
@@ -48,15 +49,15 @@ export class SessionService {
     return await this.profileService.createNewUser(dto);
   }
   
-  setSessionTokenToResponse(token: string, res: Response) {
+  setSessionTokenToResponse(token: string, res: Response, saveThisDevice?: boolean) {
     res.cookie(COOKIE_NAMES.ACCESS_TOKEN, token, {
       httpOnly: true,
-      expires: dayjs().utc().add(30, 'day').toDate(),
+      expires: dayjs().utc().add(getSessionDataTTL(saveThisDevice), 'second').toDate(),
     });
   }
   
   async signInUser(
-    dto: SessionDto,
+    dto: CreateSessionDto,
     request: Request,
     response: Response,
   ): Promise<SignInServiceMethodReturned | AnyModuleExceptionObject | RejectException> {
@@ -93,6 +94,10 @@ export class SessionService {
       uuid: tokenPayload.uuid,
     });
     
+    if(dto.saveThisDevice){
+    
+    }
+    
     if (sessionData instanceof RejectException) {
       return sessionData;
     }
@@ -100,7 +105,7 @@ export class SessionService {
     const redisKey = generateSessionRedisToken(sessionData.profile._id.toString(), sessionData.uuid);
     
     try {
-      await this.redisService.set(redisKey, JSON.stringify(sessionData), 'EX', 30 * 24 * 60 * 60);
+      await this.redisService.set(redisKey, JSON.stringify(sessionData), 'EX', getSessionDataTTL(dto.saveThisDevice));
     } catch (e: any) {
       console.error('redis cant set session data', e);
       return { moduleName: 'session', code: 'USER_CANT_CREATE_SESSION' };
